@@ -8,8 +8,8 @@ import cv2
 import customtkinter as ctk
 from PIL import Image
 import tkfilebrowser
-def open_fullscreen_window(event=None):
-    global n,vp,clip,emit,pf,video_playback,window_open
+def play_video(event=None):
+    global n,vp,clip,emit,pf,video_playback
     video_playback=True
     if ff[-4:]==".mp4":
         func()
@@ -18,7 +18,6 @@ def open_fullscreen_window(event=None):
         clip.set(cv2.CAP_PROP_POS_MSEC, emit*1000)
         cv2.namedWindow('Video Player', cv2.WINDOW_NORMAL) 
         cv2.setWindowProperty('Video Player', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        window_open=True
         while clip.isOpened(): 
             ret, frame = clip.read()
             if ret: 
@@ -39,15 +38,18 @@ def open_fullscreen_window(event=None):
                         clip.release()
                         cv2.destroyAllWindows()
                         previous(None)
-                        open_fullscreen_window(None)
+                        play_video(None)
                     elif key == ord('n'):
                         clip.release()
                         cv2.destroyAllWindows()
                         nextxx(None)
-                        open_fullscreen_window(None)
+                        play_video(None)
                     elif key ==ord('e'):
                         open_equalizer_window(None)
                         break   
+                    elif key ==ord('p'):
+                        open_playlist_window(None)
+                        break  
                     elif key == ord('r'):
                         repeat(None)
                     elif key == ord('s'):
@@ -56,17 +58,16 @@ def open_fullscreen_window(event=None):
                 break
         clip.release()
         cv2.destroyAllWindows()
-        window_open=False
-        return video_playback,window_open
-def open_new_list_window(event):
-    global new_list_window, pf, bgcc, n,song_buttons,open_window,pforg
+        return video_playback
+def open_playlist_window(event):
+    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg
     if open_window==False:
         open_window=True
-        new_list_window = ctk.CTkToplevel()
-        new_list_window.title("Playlist")
-        new_list_window.geometry("340x540+390+260")
-        new_list_window.protocol("WM_DELETE_WINDOW", on_playlist_window_close)
-        scrollable_frame = ctk.CTkScrollableFrame(new_list_window, width=310, height=460)
+        playlist_window = ctk.CTkToplevel()
+        playlist_window.title("Playlist")
+        playlist_window.geometry("340x540+390+260")
+        playlist_window.protocol("WM_DELETE_WINDOW", on_playlist_window_close)
+        scrollable_frame = ctk.CTkScrollableFrame(playlist_window, width=310, height=460)
         scrollable_frame.pack(pady=5)
         scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
         scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
@@ -92,17 +93,20 @@ def open_new_list_window(event):
                 queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
                 queue_button.configure(command=lambda index=sn: queue(index))
                 queue_button.grid(row=sn, column=1)
-        reset_button = ctk.CTkButton(new_list_window,text="Reset",width=250,height=45,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 20, "bold"))
+        reset_button = ctk.CTkButton(playlist_window,text="Reset",width=250,height=45,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 20, "bold"))
         reset_button.pack(side="bottom",pady=10)
         update_song_color()
+        playlist_window.mainloop()
+    else:
+        on_playlist_window_close()
 def reset_queue():
     global pf,pforg,n,np
     n=pforg.index(np)
     pf=pforg.copy()
     refresh_window()
 def on_playlist_window_close():
-    global new_list_window,open_window
-    new_list_window.destroy()
+    global playlist_window,open_window
+    playlist_window.destroy()
     open_window=False
 def update_song_color():
     global n,song_buttons,ff,pforg,pf,qi,np
@@ -125,7 +129,7 @@ def jump(index):
             n=index
             play()
 def queue(index):
-    global n,new_list_window,pf,vp,qi,pforg,ff,song_buttons
+    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons
     qi+=1
     if len(pf)>=qi+1:
         pf=[pf[n]]
@@ -220,7 +224,7 @@ def start():
     ews=False
     mainstart()
 def mainstart():
-    global vslider,song_name_label,cunt,equalizer,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,video_playback,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1
+    global vslider,song_name_label,cunt,equalizer,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1
     main = ctk.CTk()
     main.title("Music Player")
     main.geometry("440x250+747+370")
@@ -275,8 +279,8 @@ def mainstart():
     equalizer_button = ctk.CTkButton(otf, image=equalizer_icon, command=lambda:open_equalizer_window(None),text="",width=1)
     shuffle_button = ctk.CTkButton(otf, image=shuffle_icon, command=lambda:shuffle(None),text="",width=1)
     repeat_button = ctk.CTkButton(otf, image=repeat_icon, command=lambda:repeat(None),text="",width=1)
-    fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:open_fullscreen_window(None),text="",width=1)
-    playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:open_new_list_window(None),text="",width=1)
+    fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
+    playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:open_playlist_window(None),text="",width=1)
     playlist_button.pack(side="left",padx=20)
     fullscreen_button.pack(side="left",padx=21)
     repeat_button.pack(side="left",padx=21)
@@ -296,14 +300,14 @@ def mainstart():
     main.bind("<s>",lambda event:shuffle(None))
     main.bind("<r>",lambda event:repeat(None))
     main.bind("<e>",lambda event:open_equalizer_window(None))
-    main.bind("<f>",lambda event:open_fullscreen_window(None))
+    main.bind("<f>",lambda event:play_video(None))
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
-    main.bind("<p>",lambda event:open_new_list_window(None))
+    main.bind("<p>",lambda event:open_playlist_window(None))
     update_song_name()
     if pbs==True:
         open_window=False
-        open_new_list_window(None)
+        open_playlist_window(None)
     if ews==True:
         open_window1=False
         open_equalizer_window(None)
@@ -397,7 +401,7 @@ def call_fullscreen():
     fscreen=True
     fullscreen()
 def fullscreen():
-    global vslider,ews,pbs,song_name_label,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons
+    global vslider,ews,pbs,song_name_label,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons
     ews=False
     pbs=False
     main = ctk.CTk()
@@ -453,7 +457,7 @@ def fullscreen():
     npp.place(rely=0.74)
     shuffle_button = ctk.CTkButton(otf, image=shuffle_icon, command=lambda:shuffle(None),text="",width=1)
     repeat_button = ctk.CTkButton(otf, image=repeat_icon, command=lambda:repeat(None),text="",width=1)
-    fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:open_fullscreen_window(None),text="",width=1)
+    fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
     equalizer_button = ctk.CTkButton(otf, image=equalizer_icon, command=lambda:ew(None),text="",width=1)
     playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:pb(None),text="",width=1)
     playlist_button.pack(side="left",padx=128)
@@ -475,7 +479,7 @@ def fullscreen():
     main.bind("<s>",lambda event:shuffle(None))
     main.bind("<r>",lambda event:repeat(None))
     main.bind("<e>",lambda event:ew(None))
-    main.bind("<f>",lambda event:open_fullscreen_window(None))
+    main.bind("<f>",lambda event:play_video(None))
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:pb(None))
@@ -544,9 +548,9 @@ def ppl(event):
         vp.play()
         pp.configure(image=pause_icon)
         if video_playback==True:
-            open_fullscreen_window(None)
+            play_video(None)
 def nextx(event):
-    global n,pf,vp,video_playback,pforg
+    global n,pf,vp,pforg
     n += 1
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
@@ -554,11 +558,9 @@ def nextx(event):
         else:
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
-    play()   
-    if video_playback==True:
-        open_fullscreen_window()
+    play()
 def nextxx(event):
-    global n,pf,vp,video_playback,pforg
+    global n,pf,vp,pforg
     vp.stop()
     n += 1
     if n >= len(pf):
@@ -568,17 +570,13 @@ def nextxx(event):
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
     play()   
-    if video_playback==True:
-        open_fullscreen_window()
 def previous(event):
-    global n,pf,vp, video_playback
+    global n,pf,vp
     vp.stop()
     n -= 1
     if n < 0:
         n = len(pf) - 1
     play()
-    if video_playback==True:
-        open_fullscreen_window()
 def play():
     global n,pf,vp,ptop,ff,video_playback,pp,vlc_instance,np
     vlc_args = "--no-xlib --no-video"
@@ -601,6 +599,8 @@ def play():
             pause_icon = ctk.CTkImage(Image.open(mfl+"icons/pause.png"), size=(90, 90))
         pp.configure(image=pause_icon)
         set_song_length()
+    if video_playback==True:
+        play_video()
     vp.event_manager().event_attach(vlc.EventType.MediaPlayerEndReached, nextx)
 def vmove(val):
     global vs,vp,vslider
@@ -638,8 +638,6 @@ def update_song_progress(val):
                 timestr = timeobj.strftime('%M:%S')
                 song_progress_label.configure(text=str(timestr)+"/"+str(time_str))
                 song_progress_slider.set(current_time)
-        if video_playback==True:
-            open_fullscreen_window(None)
 def set_song_length():
     global vp,time_str,songlength,scheduler
     time.sleep(0.2)
@@ -682,6 +680,11 @@ def open_equalizer_window(event):
             scale.set(vlc.libvlc_audio_equalizer_get_amp_at_index(equalizer, i))
             scale.pack()
             band_scales.append(scale)
+        equalizer_window.protocol("WM_DELETE_WINDOW",destroy_equalizer)
+        equalizer_window.mainloop()
+    else:
+        destroy_equalizer()
+        open_window1=False
 def update_preamp(val):
     vlc.libvlc_audio_equalizer_set_preamp(equalizer, float(val))
     vp.set_equalizer(equalizer)
@@ -702,7 +705,7 @@ def refresh_window():
     if open_window==True:
         on_playlist_window_close()
         open_window=False
-        open_new_list_window(None)
+        open_playlist_window(None)
     if pbs==True:
         pb(None)
         time.sleep(0.1)
@@ -711,9 +714,9 @@ def ee():
     global vp,main
     vp.stop()
     scheduler.shutdown(wait=False)
-    if ews==True or open_window1==True:
+    if open_window1==True:
         destroy_equalizer()
-    if pbs==True or open_window==True:
+    if open_window==True:
         on_playlist_window_close()
     main.destroy()
     os._exit(0)
