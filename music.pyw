@@ -642,6 +642,8 @@ def set_song_length():
     global vp,time_str,songlength,scheduler
     time.sleep(0.2)
     songlength = int(vp.get_length()) // 1000
+    if songlength==-1:
+        songlength=0
     minutes=songlength//60
     seconds=songlength%60
     time_obj = datetime.time(minute=minutes, second=seconds)
