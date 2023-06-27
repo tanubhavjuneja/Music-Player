@@ -374,9 +374,7 @@ def sw():
         on_playlist_window_close()
     if open_window1==True:
         destroy_equalizer()
-    print(scheduler.get_jobs())
     scheduler.shutdown(wait=False)
-    print(scheduler.get_jobs())
     main.destroy()
     main = ctk.CTk()
     main.geometry("40x40+1860+980")
