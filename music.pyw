@@ -60,15 +60,21 @@ def play_video(event=None):
         cv2.destroyAllWindows()
         return video_playback
 def open_playlist_window(event):
-    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg
+    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl
     if open_window==False:
         open_window=True
         playlist_window = ctk.CTkToplevel()
         playlist_window.title("Playlist")
-        playlist_window.geometry("340x540+390+260")
+        playlist_window.geometry("340x590+390+230")
+        playlist_window.overrideredirect(True)
         playlist_window.protocol("WM_DELETE_WINDOW", on_playlist_window_close)
-        scrollable_frame = ctk.CTkScrollableFrame(playlist_window, width=310, height=460)
-        scrollable_frame.pack(pady=5)
+        playlist_label=ctk.CTkLabel(playlist_window,text="Playlist", font=("Arial", 16, "bold"))
+        playlist_label.place(rely=0.01,relx=0.05)
+        close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
+        close_button = ctk.CTkButton(playlist_window, image=close_icon, command=on_playlist_window_close,text="",width=1)
+        close_button.place(relx=0.9,rely=0.01)
+        scrollable_frame = ctk.CTkScrollableFrame(playlist_window, width=310, height=500)
+        scrollable_frame.pack(pady=30)
         scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
         scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(30, 30))
@@ -93,8 +99,8 @@ def open_playlist_window(event):
                 queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
                 queue_button.configure(command=lambda index=sn: queue(index))
                 queue_button.grid(row=sn, column=1)
-        reset_button = ctk.CTkButton(playlist_window,text="Reset",width=250,height=45,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 20, "bold"))
-        reset_button.pack(side="bottom",pady=10)
+        reset_button = ctk.CTkButton(playlist_window,text="Reset",width=300,height=30,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 16, "bold"))
+        reset_button.place(rely=0.92,relx=0.05)
         update_song_color()
         playlist_window.mainloop()
     else:
@@ -191,10 +197,11 @@ def select_file_location():
     main.destroy()
     read_file_location()
 def start():
-    global small_window,pforg,qi,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
+    repeat_song=False
     read_file_location()
     if theme == "dark":
         bgc="gray14"
@@ -227,7 +234,7 @@ def mainstart():
     global vslider,song_name_label,cunt,equalizer,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1
     main = ctk.CTk()
     main.title("Music Player")
-    main.geometry("440x250+747+370")
+    main.geometry("440x250+740+370")
     main.overrideredirect(True)
     main.attributes("-alpha",100.0)
     main.lift()
@@ -304,7 +311,6 @@ def mainstart():
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:open_playlist_window(None))
-    update_song_name()
     if pbs==True:
         open_window=False
         open_playlist_window(None)
@@ -485,7 +491,6 @@ def fullscreen():
         pb(None)
     if open_window1==True:
         ew(None)
-    update_song_name()
     set_song_length()
     main.mainloop()
 def restart(): 
@@ -517,8 +522,8 @@ def rewindr(event):
     vp.set_time(newtime)
     vp.play()
 def update_song_name():
-    global pf,n,song_name_label,fscreen,small_window
-    song_name = pf[n][:-4]
+    global song_name_label,fscreen,small_window,np
+    song_name = np[:-4]
     if small_window==False:
         if  fscreen==False:
             if len(song_name)>=17:
@@ -576,11 +581,14 @@ def previous(event):
         n = len(pf) - 1
     play()
 def play():
-    global n,pf,vp,ptop,ff,video_playback,pp,vlc_instance,np
+    global n,pf,vp,ptop,ff,video_playback,pp,vlc_instance,np,repeat_song,csg
     vlc_args = "--no-xlib --no-video"
     vlc_instance = vlc.Instance(vlc_args.split())
     vp = vlc_instance.media_player_new()
-    np=pf[n]
+    if repeat_song==True:
+        np=csg
+    else:
+        np=pf[n]
     if open_window==True or pbs==True:
         update_song_color()
     ff = os.path.join(ptop, np)
@@ -623,7 +631,7 @@ def on_slider_move(event):
     vp.set_time(current_time * 1000)
 def update_song_progress(val):
     global vp,song_length,is_dragging,current_time,song_progress_slider,small_window
-    if small_window==False:
+    if small_window==False and video_playback==False:
         if not is_dragging:
             status = vp.get_state()
             if status == vlc.State.Playing:
@@ -664,22 +672,30 @@ def open_equalizer_window(event):
         open_window1=True
         equalizer_window = ctk.CTkToplevel(main)
         equalizer_window.title("Equalizer")
-        equalizer_window.geometry("250x540+1190+260")
-        preamp_label = ctk.CTkLabel(equalizer_window, text="Preamp(dB)", font=("Arial", 12, "bold"))
+        equalizer_window.geometry("250x590+1190+230")
+        equalizer_window.overrideredirect(True)
+        equalizer_label=ctk.CTkLabel(equalizer_window,text="Playlist", font=("Arial", 16, "bold"))
+        equalizer_label.place(relx=0.05,rely=0.008)
+        close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
+        close_button = ctk.CTkButton(equalizer_window, image=close_icon, command=destroy_equalizer,text="",width=1)
+        close_button.place(relx=0.87,rely=0.008)
+        equalizer_frame=ctk.CTkFrame(equalizer_window)
+        preamp_label = ctk.CTkLabel(equalizer_frame, text="Preamp(dB)", font=("Arial", 12, "bold"))
         preamp_label.pack()
-        preamp_scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=update_preamp,height=20)
+        preamp_scale = ctk.CTkSlider(equalizer_frame, from_=-20, to=20, orientation='horizontal',command=update_preamp,height=20)
         preamp_scale.set(vlc.libvlc_audio_equalizer_get_preamp(equalizer))
         preamp_scale.pack()
         band_scales = []
         band_frequencies = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000]
         for i in range(10):
             freq = band_frequencies[i]
-            freq_label = ctk.CTkLabel(equalizer_window, text=f'{freq} Hz (dB)', font=("Arial", 12, "bold"))
+            freq_label = ctk.CTkLabel(equalizer_frame, text=f'{freq} Hz (dB)', font=("Arial", 12, "bold"))
             freq_label.pack()
-            scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=lambda val, i=i: update_band(i, val),height=20)
+            scale = ctk.CTkSlider(equalizer_frame, from_=-20, to=20, orientation='horizontal',command=lambda val, i=i: update_band(i, val),height=20)
             scale.set(vlc.libvlc_audio_equalizer_get_amp_at_index(equalizer, i))
             scale.pack()
             band_scales.append(scale)
+        equalizer_frame.pack(pady=30)
         equalizer_window.protocol("WM_DELETE_WINDOW",destroy_equalizer)
         equalizer_window.mainloop()
     else:
@@ -721,15 +737,12 @@ def ee():
     main.destroy()
     os._exit(0)
 def repeat(event):
-    global cunt,pf,pfb,csg
+    global cunt,pf,csg,n,repeat_song
     cunt+=1
     if cunt%2!=0:
         csg=pf[n]
-        pfb=pf.copy()
-        pf=[]
-        pf.append(csg)
+        repeat_song=True
     elif cunt%2==0:
-        pf=[]
-        pf=pfb.copy()
-    return pf
+        n=pf.index(csg)
+        repeat_song=False
 start()
