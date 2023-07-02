@@ -60,7 +60,7 @@ def play_video(event=None):
         cv2.destroyAllWindows()
         return video_playback
 def open_playlist_window(event):
-    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl
+    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons
     if open_window==False:
         open_window=True
         playlist_window = ctk.CTkToplevel()
@@ -77,12 +77,13 @@ def open_playlist_window(event):
         scrollable_frame.pack(pady=30)
         scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
         scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
-        queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(30, 30))
+        queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
         song_buttons=[]
+        queue_buttons=[]
         if len(pf)<len(pforg):
             for sn in range(len(pforg)):
                 song_namex = pforg[sn][:-4]
-                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
                 song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
                 song_buttons.append(song_button)
                 song_button.grid(row=sn, column=0)
@@ -92,12 +93,13 @@ def open_playlist_window(event):
         else:
             for sn in range(len(pf)):
                 song_namex = pf[sn][:-4]
-                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
                 song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
                 song_buttons.append(song_button)
                 song_button.grid(row=sn, column=0)
                 queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
                 queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
                 queue_button.grid(row=sn, column=1)
         reset_button = ctk.CTkButton(playlist_window,text="Reset",width=300,height=30,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 16, "bold"))
         reset_button.place(rely=0.92,relx=0.05)
@@ -135,7 +137,7 @@ def jump(index):
             n=index
             play()
 def queue(index):
-    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons
+    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons
     qi+=1
     if len(pf)>=qi+1:
         pf=[pf[n]]
@@ -143,6 +145,7 @@ def queue(index):
         n=0
     if pforg[index] not in pf:
         pf.append(pforg[index])
+        queue_buttons[index].configure(fg_color="DarkOrchid3")
     else:
         qi-=1
 def fastf():
@@ -324,7 +327,7 @@ def mainstart():
         set_song_length()
     main.mainloop()
 def pb(event):
-    global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame
+    global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons
     if pbs==False:
         pbs=True
         scrollable_frame = ctk.CTkScrollableFrame(main, width=400, height=620)
@@ -333,6 +336,7 @@ def pb(event):
         scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(40, 40))
         song_buttons=[]
+        queue_buttons=[]
         for sn in range(len(pf)):
             song_namex = pf[sn][:-4]
             song_button = ctk.CTkButton(scrollable_frame, width=340, text=song_namex, font=("Arial", 28, "bold"), bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w")
@@ -341,6 +345,7 @@ def pb(event):
             song_button.grid(row=sn, column=0)
             queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
             queue_button.configure(command=lambda index=sn: queue(index))
+            queue_buttons.append(queue_button)
             queue_button.grid(row=sn, column=1)
         update_song_color()
     else:
@@ -553,7 +558,9 @@ def ppl(event):
         if video_playback==True:
             play_video(None)
 def nextx(event):
-    global n,pf,vp,pforg
+    global n,pf,vp,pforg,queue_buttons,bgcc,pbs,open_window
+    if pbs==True or open_window==True:
+        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     n += 1
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
@@ -563,7 +570,9 @@ def nextx(event):
         pf=pforg.copy()
     play()
 def nextxx(event):
-    global n,pf,vp,pforg
+    global n,pf,vp,pforg,queue_buttons,bgcc,pbs,open_window
+    if pbs==True or open_window==True:
+        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     vp.stop()
     n += 1
     if n >= len(pf):
