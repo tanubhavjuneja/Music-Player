@@ -119,10 +119,16 @@ def on_playlist_window_close():
 def update_song_color():
     global n,song_buttons,ff,pforg,pf,qi,np
     for sn,song_button in enumerate(song_buttons):
-        if sn == pforg.index(np):
-            song_button.configure(fg_color="DarkOrchid3")
+        if len(pf)<len(pforg):
+            if sn == pforg.index(np):
+                song_button.configure(fg_color="DarkOrchid3")
+            else:
+                song_button.configure(fg_color=bgcc)
         else:
-            song_button.configure(fg_color=bgcc)
+            if sn == pf.index(np):
+                song_button.configure(fg_color="DarkOrchid3")
+            else:
+                song_button.configure(fg_color=bgcc)
 def jump(index):
     global n,pf,pforg,vp
     if n!=index:
