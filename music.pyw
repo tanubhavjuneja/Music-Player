@@ -59,6 +59,22 @@ def play_video(event=None):
         clip.release()
         cv2.destroyAllWindows()
         return video_playback
+def update_song_color():
+    global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing
+    for sn,song_button in enumerate(song_buttons):
+        if len(pf)<len(pforg):
+            if sn == pforg.index(np):
+                song_button.configure(fg_color="DarkOrchid3")
+            else:
+                song_button.configure(fg_color=bgcc)
+        else:
+            if sn == pf.index(np):
+                song_button.configure(fg_color="DarkOrchid3")
+            else:
+                song_button.configure(fg_color=bgcc)
+    if queue_playing==True:
+        for sname in pf[n+1:]:
+            queue_buttons[pforg.index(sname)].configure(fg_color="DarkOrchid3")
 def open_playlist_window(event):
     global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons
     if open_window==False:
@@ -89,6 +105,7 @@ def open_playlist_window(event):
                 song_button.grid(row=sn, column=0)
                 queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
                 queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
                 queue_button.grid(row=sn, column=1)
         else:
             for sn in range(len(pf)):
@@ -108,7 +125,8 @@ def open_playlist_window(event):
     else:
         on_playlist_window_close()
 def reset_queue():
-    global pf,pforg,n,np
+    global pf,pforg,n,np,queue_playing
+    queue_playing=False
     n=pforg.index(np)
     pf=pforg.copy()
     refresh_window()
@@ -116,19 +134,6 @@ def on_playlist_window_close():
     global playlist_window,open_window
     playlist_window.destroy()
     open_window=False
-def update_song_color():
-    global n,song_buttons,ff,pforg,pf,qi,np
-    for sn,song_button in enumerate(song_buttons):
-        if len(pf)<len(pforg):
-            if sn == pforg.index(np):
-                song_button.configure(fg_color="DarkOrchid3")
-            else:
-                song_button.configure(fg_color=bgcc)
-        else:
-            if sn == pf.index(np):
-                song_button.configure(fg_color="DarkOrchid3")
-            else:
-                song_button.configure(fg_color=bgcc)
 def jump(index):
     global n,pf,pforg,vp
     if n!=index:
@@ -143,8 +148,9 @@ def jump(index):
             n=index
             play()
 def queue(index):
-    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons
+    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing
     qi+=1
+    queue_playing=True
     if len(pf)>=qi+1:
         pf=[pf[n]]
     if n>=len(pf):
@@ -154,6 +160,7 @@ def queue(index):
         queue_buttons[index].configure(fg_color="DarkOrchid3")
     else:
         qi-=1
+    return queue_playing
 def fastf():
     global vp, clip
     currtime = vp.get_time()
@@ -206,7 +213,7 @@ def select_file_location():
     main.destroy()
     read_file_location()
 def start():
-    global small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -224,6 +231,7 @@ def start():
     cunt=0
     n = 0
     qi=0
+    queue_playing=False
     song_length=0
     open_window=False
     open_window1=False
@@ -240,7 +248,7 @@ def start():
     ews=False
     mainstart()
 def mainstart():
-    global vslider,song_name_label,cunt,equalizer,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1
+    global vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1
     main = ctk.CTk()
     main.title("Music Player")
     main.geometry("440x250+740+370")
@@ -416,7 +424,7 @@ def call_fullscreen():
     fscreen=True
     fullscreen()
 def fullscreen():
-    global vslider,ews,pbs,song_name_label,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons
+    global vslider,ews,pbs,song_name_label,repeat_button,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons
     ews=False
     pbs=False
     main = ctk.CTk()
@@ -564,29 +572,31 @@ def ppl(event):
         if video_playback==True:
             play_video(None)
 def nextx(event):
-    global n,pf,vp,pforg,queue_buttons,bgcc,pbs,open_window
-    if pbs==True or open_window==True:
-        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
+    global n,pf,vp,pforg,queue_playing
     n += 1
+    if queue_playing==True:
+        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
             n = 0
         else:
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
+        queue_playing=False
     play()
 def nextxx(event):
-    global n,pf,vp,pforg,queue_buttons,bgcc,pbs,open_window
-    if pbs==True or open_window==True:
-        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
+    global n,pf,vp,pforg,queue_playing,queue_buttons
     vp.stop()
     n += 1
+    if queue_playing==True:
+        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
             n = 0
         else:
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
+        queue_playing=False
     play()   
 def previous(event):
     global n,pf,vp
@@ -752,12 +762,14 @@ def ee():
     main.destroy()
     os._exit(0)
 def repeat(event):
-    global cunt,pf,csg,n,repeat_song
+    global cunt,pf,csg,n,repeat_song,repeat_button,bgcc
     cunt+=1
     if cunt%2!=0:
         csg=pf[n]
         repeat_song=True
+        repeat_button.configure(fg_color="DarkOrchid3")
     elif cunt%2==0:
         n=pf.index(csg)
         repeat_song=False
+        repeat_button.configure(fg_color=bgcc)
 start()
