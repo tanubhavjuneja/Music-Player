@@ -575,7 +575,7 @@ def ppl(event):
         if video_playback==True:
             play_video(None)
 def nextx(event):
-    global n,pf,vp,pforg,queue_playing
+    global n,pf,vp,pforg,queue_playing,queue_buttons,open_window
     n += 1
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
@@ -584,11 +584,11 @@ def nextx(event):
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
         queue_playing=False
-    if queue_playing==True:
+    if queue_playing==True and open_window==True:
         queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     play()
 def nextxx(event):
-    global n,pf,vp,pforg,queue_playing,queue_buttons
+    global n,pf,vp,pforg,queue_playing,queue_buttons,open_window
     vp.stop()
     n += 1
     if n >= len(pf):
@@ -598,7 +598,7 @@ def nextxx(event):
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
         queue_playing=False
-    if queue_playing==True:
+    if queue_playing==True and open_window==True:
         queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     play()   
 def previous(event):
