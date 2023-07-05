@@ -158,6 +158,9 @@ def queue(index):
     if pforg[index] not in pf:
         pf.append(pforg[index])
         queue_buttons[index].configure(fg_color="DarkOrchid3")
+    elif pforg[index] in pf:
+        pf.remove(pforg[index])
+        queue_buttons[index].configure(fg_color=bgcc)
     else:
         qi-=1
     return queue_playing
@@ -229,9 +232,9 @@ def start():
     ctk.set_default_color_theme(mfl+"myjson.json")
     equalizer = vlc.libvlc_audio_equalizer_new()
     cunt=0
+    vs=100
     n = 0
     qi=0
-    vs=100
     queue_playing=False
     song_length=0
     open_window=False
@@ -574,8 +577,6 @@ def ppl(event):
 def nextx(event):
     global n,pf,vp,pforg,queue_playing
     n += 1
-    if queue_playing==True:
-        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
             n = 0
@@ -583,13 +584,13 @@ def nextx(event):
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
         queue_playing=False
+    if queue_playing==True:
+        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     play()
 def nextxx(event):
     global n,pf,vp,pforg,queue_playing,queue_buttons
     vp.stop()
     n += 1
-    if queue_playing==True:
-        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
             n = 0
@@ -597,6 +598,8 @@ def nextxx(event):
             n=pforg.index(pf[n-1])+1
         pf=pforg.copy()
         queue_playing=False
+    if queue_playing==True:
+        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
     play()   
 def previous(event):
     global n,pf,vp
