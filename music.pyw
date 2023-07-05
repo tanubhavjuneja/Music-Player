@@ -231,6 +231,7 @@ def start():
     cunt=0
     n = 0
     qi=0
+    vs=100
     queue_playing=False
     song_length=0
     open_window=False
@@ -258,7 +259,6 @@ def mainstart():
     song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 40, "bold"))
     song_name_label.pack(pady=10)
     song_name_label.place(relx=0.5, rely=0.15, anchor="n")
-    vs=100
     vslider = ctk.CTkSlider(main, from_=0, to=100, orientation='vertical', width=20, height=90, command=vmove)
     vslider.set(vs)
     vslider.place(relx=0.97, rely=0.32, anchor="e")
