@@ -544,7 +544,7 @@ def rewindr(event):
     vp.set_time(newtime)
     vp.play()
 def update_song_name():
-    global song_name_label,fscreen,small_window,np
+    global song_name_label,fscreen,small_window,np,song_name
     song_name = np[:-4]
     if small_window==False:
         if  fscreen==False:
