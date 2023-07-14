@@ -56,6 +56,7 @@ def play_video(event=None):
                         shuffle()
             else:
                 break
+                
         clip.release()
         cv2.destroyAllWindows()
         return video_playback
@@ -259,8 +260,10 @@ def mainstart():
     main.overrideredirect(True)
     main.attributes("-alpha",100.0)
     main.lift()
-    song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 40, "bold"))
-    song_name_label.pack(pady=10)
+    if len(song_name)>=17:
+        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 30, "bold"))
+    else:
+        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 40, "bold"))
     song_name_label.place(relx=0.5, rely=0.15, anchor="n")
     vslider = ctk.CTkSlider(main, from_=0, to=100, orientation='vertical', width=20, height=90, command=vmove)
     vslider.set(vs)
@@ -437,7 +440,10 @@ def fullscreen():
     main.attributes("-alpha",100.0)
     main.lift()
     main.focus_force()
-    song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 100, "bold"))
+    if len(song_name)>=17:
+        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 80, "bold"))
+    else:
+        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 120, "bold"))
     song_name_label.pack(pady=10)
     song_name_label.place(relx=0.5, rely=0.15, anchor="n")
     vslider = ctk.CTkSlider(main, from_=0, to=100, orientation='vertical', width=25, height=610, command=vmove)
@@ -575,7 +581,7 @@ def ppl(event):
         if video_playback==True:
             play_video(None)
 def nextx(event):
-    global n,pf,vp,pforg,queue_playing,queue_buttons,open_window
+    global n,pf,vp,pforg,queue_playing,open_window
     n += 1
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
