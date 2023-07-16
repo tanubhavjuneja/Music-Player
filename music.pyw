@@ -56,7 +56,6 @@ def play_video(event=None):
                         shuffle()
             else:
                 break
-                
         clip.release()
         cv2.destroyAllWindows()
         return video_playback
@@ -334,6 +333,8 @@ def mainstart():
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:open_playlist_window(None))
+    main.bind("<ButtonPress-1>", on_drag_start)
+    main.bind("<B1-Motion>", on_drag_motion)
     main.focus_force()
     if pbs==True:
         open_window=False
@@ -347,6 +348,17 @@ def mainstart():
     else:
         set_song_length()
     main.mainloop()
+def on_drag_start(event):
+    global main
+    main.x = event.x
+    main.y = event.y
+def on_drag_motion(event):
+    global main
+    delta_x = event.x - main.x
+    delta_y = event.y - main.y
+    new_x = main.winfo_x() + delta_x
+    new_y = main.winfo_y() + delta_y
+    main.geometry(f"+{new_x}+{new_y}")
 def pb(event):
     global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons
     if pbs==False:
