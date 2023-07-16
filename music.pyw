@@ -334,6 +334,7 @@ def mainstart():
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:open_playlist_window(None))
+    main.focus_force()
     if pbs==True:
         open_window=False
         open_playlist_window(None)
@@ -412,12 +413,26 @@ def sw():
     main.attributes('-topmost', True)
     main.overrideredirect(True)
     main.attributes("-alpha",100.0)
-    main.lift()
     fr_icon = ctk.CTkImage(Image.open(mfl+"icons/scale.png"), size=(28, 28))
     backfull = ctk.CTkButton(main, image=fr_icon,width=1,text="",command=restart)
     backfull.pack()
+    main.bind('<Left>', previous)
+    main.bind('<Alt_L>', previous)
+    main.bind('<b>', previous)
+    main.bind('<space>', ppl)
+    main.bind('<Return>', ppl)
+    main.bind('<n>', nextxx)
+    main.bind('<Right>', nextxx)
+    main.bind('<Alt_R>', nextxx)
+    main.bind("<s>",lambda event:shuffle(None))
+    main.bind("<r>",lambda event:repeat(None))
+    main.bind("<e>",lambda event:open_equalizer_window(None))
+    main.bind("<f>",lambda event:play_video(None))
+    main.bind("<a>",lambda event:rewindr(None))
+    main.bind("<d>",lambda event:fastff(None))
+    main.bind("<p>",lambda event:open_playlist_window(None))
     main.mainloop()
-def call_fullscreen():
+def call_fullscreen(): 
     global main,fscreen,scheduler,open_window,open_window1
     if open_window==True:
         on_playlist_window_close()
@@ -514,7 +529,8 @@ def fullscreen():
     main.bind("<f>",lambda event:play_video(None))
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
-    main.bind("<p>",lambda event:pb(None))
+    main.bind("<p>",lambda event:pb(None)) 
+    main.focus_force()
     if open_window==True:
         pb(None)
     if open_window1==True:
@@ -564,7 +580,7 @@ def update_song_name():
             else:
                 song_name_label.configure(text=song_name,font=("Arial", 120, "bold"))
 def ppl(event):
-    global pp,pause_icon,play_icon, video_playback
+    global pp,pause_icon,play_icon, video_playback,small_window
     if  fscreen==False:
         play_icon = ctk.CTkImage(Image.open(mfl+"icons/play.png"), size=(40, 40))
         pause_icon = ctk.CTkImage(Image.open(mfl+"icons/pause.png"), size=(40, 40))
@@ -574,10 +590,12 @@ def ppl(event):
     status=vp.get_state()
     if status == vlc.State.Playing:
         vp.pause()
-        pp.configure(image=play_icon)
+        if small_window==False:    
+            pp.configure(image=play_icon)
     elif status ==vlc.State.Paused:
         vp.play()
-        pp.configure(image=pause_icon)
+        if small_window==False:
+            pp.configure(image=pause_icon)
         if video_playback==True:
             play_video(None)
 def nextx(event):
