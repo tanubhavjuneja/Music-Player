@@ -308,6 +308,8 @@ def mainstart():
     equalizer_button = ctk.CTkButton(otf, image=equalizer_icon, command=lambda:open_equalizer_window(None),text="",width=1)
     shuffle_button = ctk.CTkButton(otf, image=shuffle_icon, command=lambda:shuffle(None),text="",width=1)
     repeat_button = ctk.CTkButton(otf, image=repeat_icon, command=lambda:repeat(None),text="",width=1)
+    if repeat_song==True:
+        repeat_button.configure(fg_color="DarkOrchid3")
     fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
     playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:open_playlist_window(None),text="",width=1)
     playlist_button.pack(side="left",padx=20)
@@ -516,6 +518,8 @@ def fullscreen():
     npp.place(rely=0.74)
     shuffle_button = ctk.CTkButton(otf, image=shuffle_icon, command=lambda:shuffle(None),text="",width=1)
     repeat_button = ctk.CTkButton(otf, image=repeat_icon, command=lambda:repeat(None),text="",width=1)
+    if repeat_song==True:
+        repeat_button.configure(fg_color="DarkOrchid3")
     fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
     equalizer_button = ctk.CTkButton(otf, image=equalizer_icon, command=lambda:ew(None),text="",width=1)
     playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:pb(None),text="",width=1)
