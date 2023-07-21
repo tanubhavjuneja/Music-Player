@@ -61,6 +61,7 @@ def play_video(event=None):
         return video_playback
 def update_song_color():
     global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing
+    queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
     for sn,song_button in enumerate(song_buttons):
         if len(pf)<len(pforg):
             if sn == pforg.index(np):
@@ -74,7 +75,7 @@ def update_song_color():
                 song_button.configure(fg_color=bgcc)
     if queue_playing==True:
         for sname in pf[n+1:]:
-            queue_buttons[pforg.index(sname)].configure(fg_color="DarkOrchid3")
+            queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
 def open_playlist_window(event):
     global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons
     if open_window==False:
@@ -149,6 +150,8 @@ def jump(index):
             play()
 def queue(index):
     global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing
+    queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
+    queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
     qi+=1
     queue_playing=True
     if len(pf)>=qi+1:
@@ -157,10 +160,10 @@ def queue(index):
         n=0
     if pforg[index] not in pf:
         pf.append(pforg[index])
-        queue_buttons[index].configure(fg_color="DarkOrchid3")
+        queue_buttons[index].configure(image=queue_icon1)
     elif pforg[index] in pf:
         pf.remove(pforg[index])
-        queue_buttons[index].configure(fg_color=bgcc)
+        queue_buttons[index].configure(image=queue_icon)
     else:
         qi-=1
     return queue_playing
@@ -280,6 +283,7 @@ def mainstart():
     equalizer_icon = ctk.CTkImage(Image.open(mfl+"icons/equalizer.png"), size=(30, 30))
     shuffle_icon = ctk.CTkImage(Image.open(mfl+"icons/shuffle.png"), size=(30, 30))
     repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(30, 30))
+    repeat_icon1 = ctk.CTkImage(Image.open(mfl+"icons/repeat1.png"), size=(30, 30))
     pause_icon = ctk.CTkImage(Image.open(mfl+"icons/pause.png"), size=(40, 40))
     video_icon = ctk.CTkImage(Image.open(mfl+"icons/video.png"), size=(30, 30))
     previous_icon = ctk.CTkImage(Image.open(mfl+"icons/previous.png"), size=(40, 40))
@@ -309,7 +313,7 @@ def mainstart():
     shuffle_button = ctk.CTkButton(otf, image=shuffle_icon, command=lambda:shuffle(None),text="",width=1)
     repeat_button = ctk.CTkButton(otf, image=repeat_icon, command=lambda:repeat(None),text="",width=1)
     if repeat_song==True:
-        repeat_button.configure(fg_color="DarkOrchid3")
+        repeat_button.configure(image=repeat_icon1)
     fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
     playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:open_playlist_window(None),text="",width=1)
     playlist_button.pack(side="left",padx=20)
@@ -459,7 +463,7 @@ def call_fullscreen():
     fscreen=True
     fullscreen()
 def fullscreen():
-    global vslider,ews,pbs,song_name_label,repeat_button,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons
+    global repeat_icon1,vslider,ews,pbs,song_name_label,repeat_button,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons
     ews=False
     pbs=False
     main = ctk.CTk()
@@ -491,6 +495,7 @@ def fullscreen():
     equalizer_icon = ctk.CTkImage(Image.open(mfl+"icons/equalizer.png"), size=(90,90))
     shuffle_icon = ctk.CTkImage(Image.open(mfl+"icons/shuffle.png"), size=(90,90))
     repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(90,90))
+    repeat_icon1 = ctk.CTkImage(Image.open(mfl+"icons/repeat1.png"), size=(90,90))
     video_icon = ctk.CTkImage(Image.open(mfl+"icons/video.png"), size=(90,90))
     pause_icon = ctk.CTkImage(Image.open(mfl+"icons/pause.png"), size=(90,90))
     previous_icon = ctk.CTkImage(Image.open(mfl+"icons/previous.png"), size=(90,90))
@@ -519,7 +524,7 @@ def fullscreen():
     shuffle_button = ctk.CTkButton(otf, image=shuffle_icon, command=lambda:shuffle(None),text="",width=1)
     repeat_button = ctk.CTkButton(otf, image=repeat_icon, command=lambda:repeat(None),text="",width=1)
     if repeat_song==True:
-        repeat_button.configure(fg_color="DarkOrchid3")
+        repeat_button.configure(image=repeat_icon1)
     fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
     equalizer_button = ctk.CTkButton(otf, image=equalizer_icon, command=lambda:ew(None),text="",width=1)
     playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:pb(None),text="",width=1)
@@ -617,6 +622,7 @@ def ppl(event):
 def nextx(event):
     global n,pf,vp,pforg,queue_playing,open_window
     n += 1
+    
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
             n = 0
@@ -625,7 +631,8 @@ def nextx(event):
         pf=pforg.copy()
         queue_playing=False
     if queue_playing==True and open_window==True:
-        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
+        queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
+        queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
     play()
 def nextxx(event):
     global n,pf,vp,pforg,queue_playing,queue_buttons,open_window
@@ -639,7 +646,8 @@ def nextxx(event):
         pf=pforg.copy()
         queue_playing=False
     if queue_playing==True and open_window==True:
-        queue_buttons[pforg.index(pf[n])].configure(fg_color=bgcc)
+        queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
+        queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
     play()   
 def previous(event):
     global n,pf,vp
@@ -805,14 +813,20 @@ def ee():
     main.destroy()
     os._exit(0)
 def repeat(event):
-    global cunt,pf,csg,n,repeat_song,repeat_button,bgcc
+    global cunt,pf,csg,n,repeat_song,repeat_button
     cunt+=1
+    if fscreen==False:
+        repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(30, 30))
+        repeat_icon1 = ctk.CTkImage(Image.open(mfl+"icons/repeat1.png"), size=(30, 30))
+    else:
+        repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(90,90))
+        repeat_icon1 = ctk.CTkImage(Image.open(mfl+"icons/repeat1.png"), size=(90,90))
     if cunt%2!=0:
         csg=pf[n]
         repeat_song=True
-        repeat_button.configure(fg_color="DarkOrchid3")
+        repeat_button.configure(image=repeat_icon1)
     elif cunt%2==0:
         n=pf.index(csg)
         repeat_song=False
-        repeat_button.configure(fg_color=bgcc)
+        repeat_button.configure(image=repeat_icon)
 start()
