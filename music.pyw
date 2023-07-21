@@ -122,6 +122,8 @@ def open_playlist_window(event):
         reset_button = ctk.CTkButton(playlist_window,text="Reset",width=300,height=30,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 16, "bold"))
         reset_button.place(rely=0.92,relx=0.05)
         update_song_color()
+        playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
+        playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
         playlist_window.mainloop()
     else:
         on_playlist_window_close()
@@ -339,8 +341,8 @@ def mainstart():
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:open_playlist_window(None))
-    main.bind("<ButtonPress-1>", on_drag_start)
-    main.bind("<B1-Motion>", on_drag_motion)
+    main.bind("<B1-Motion>", lambda event, window=main: on_drag_motion(event, window))
+    main.bind("<ButtonPress-1>", lambda event, window=main: on_drag_start(event, window))
     main.focus_force()
     if pbs==True:
         open_window=False
@@ -354,17 +356,15 @@ def mainstart():
     else:
         set_song_length()
     main.mainloop()
-def on_drag_start(event):
-    global main
-    main.x = event.x
-    main.y = event.y
-def on_drag_motion(event):
-    global main
-    delta_x = event.x - main.x
-    delta_y = event.y - main.y
-    new_x = main.winfo_x() + delta_x
-    new_y = main.winfo_y() + delta_y
-    main.geometry(f"+{new_x}+{new_y}")
+def on_drag_start(event, window):
+    window.x = event.x
+    window.y = event.y
+def on_drag_motion(event, window):
+    delta_x = event.x - window.x
+    delta_y = event.y - window.y
+    new_x = window.winfo_x() + delta_x
+    new_y = window.winfo_y() + delta_y
+    window.geometry(f"+{new_x}+{new_y}")
 def pb(event):
     global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons
     if pbs==False:
@@ -773,6 +773,8 @@ def open_equalizer_window(event):
             band_scales.append(scale)
         equalizer_frame.pack(pady=30)
         equalizer_window.protocol("WM_DELETE_WINDOW",destroy_equalizer)
+        equalizer_window.bind("<B1-Motion>", lambda event, window=equalizer_window: on_drag_motion(event, window))
+        equalizer_window.bind("<ButtonPress-1>", lambda event, window=equalizer_window: on_drag_start(event, window))
         equalizer_window.mainloop()
     else:
         destroy_equalizer()
