@@ -84,7 +84,6 @@ def open_playlist_window(event):
         playlist_window.title("Playlist")
         playlist_window.geometry("340x590+390+230")
         playlist_window.overrideredirect(True)
-        playlist_window.protocol("WM_DELETE_WINDOW", on_playlist_window_close)
         playlist_label=ctk.CTkLabel(playlist_window,text="Playlist", font=("Arial", 16, "bold"))
         playlist_label.place(rely=0.01,relx=0.05)
         close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
@@ -772,9 +771,6 @@ def open_equalizer_window(event):
             scale.pack()
             band_scales.append(scale)
         equalizer_frame.pack(pady=30)
-        equalizer_window.protocol("WM_DELETE_WINDOW",destroy_equalizer)
-        equalizer_window.bind("<B1-Motion>", lambda event, window=equalizer_window: on_drag_motion(event, window))
-        equalizer_window.bind("<ButtonPress-1>", lambda event, window=equalizer_window: on_drag_start(event, window))
         equalizer_window.mainloop()
     else:
         destroy_equalizer()
