@@ -255,7 +255,7 @@ def start():
     ews=False
     mainstart()
 def mainstart():
-    global vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1
+    global vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
     main = ctk.CTk()
     main.title("Music Player")
     main.geometry("440x250+740+370")
@@ -344,8 +344,10 @@ def mainstart():
     main.focus_force()
     if pbs==True:
         open_playlist_window(None)
+        pbs=False
     if ews==True:
         open_equalizer_window(None)
+        ews=False
     if playing != True:
         play()
         playing=True
@@ -414,12 +416,14 @@ def ew(event):
         ews=False
         vslider.place(relx=0.97)
 def sw():
-    global main,scheduler,small_window
+    global main,scheduler,small_window,pbs,ews
     small_window=True
     if open_window==True:
         on_playlist_window_close()
+        pbs=True
     if open_window1==True:
         destroy_equalizer()
+        ews=True
     scheduler.shutdown(wait=False)
     main.destroy()
     main = ctk.CTk()
