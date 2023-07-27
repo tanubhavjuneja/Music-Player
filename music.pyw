@@ -123,7 +123,6 @@ def open_playlist_window(event):
         update_song_color()
         playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
         playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
-        playlist_window.mainloop()
     else:
         on_playlist_window_close()
 def reset_queue():
@@ -344,10 +343,8 @@ def mainstart():
     main.bind("<ButtonPress-1>", lambda event, window=main: on_drag_start(event, window))
     main.focus_force()
     if pbs==True:
-        open_window=False
         open_playlist_window(None)
     if ews==True:
-        open_window1=False
         open_equalizer_window(None)
     if playing != True:
         play()
@@ -462,7 +459,7 @@ def call_fullscreen():
     fscreen=True
     fullscreen()
 def fullscreen():
-    global repeat_icon1,vslider,ews,pbs,song_name_label,repeat_button,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons
+    global repeat_icon1,vslider,ews,pbs,song_name_label,repeat_button,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons,open_window1
     ews=False
     pbs=False
     main = ctk.CTk()
@@ -553,8 +550,10 @@ def fullscreen():
     main.focus_force()
     if open_window==True:
         pb(None)
+        open_window=False
     if open_window1==True:
         ew(None)
+        open_window1=False
     set_song_length()
     main.mainloop()
 def restart(): 
@@ -745,7 +744,7 @@ def open_equalizer_window(event):
     global main,open_window1,equalizer_window
     if open_window1==False:
         open_window1=True
-        equalizer_window = ctk.CTkToplevel(main)
+        equalizer_window = ctk.CTkToplevel( )
         equalizer_window.title("Equalizer")
         equalizer_window.geometry("250x590+1190+230")
         equalizer_window.overrideredirect(True)
@@ -771,7 +770,6 @@ def open_equalizer_window(event):
             scale.pack()
             band_scales.append(scale)
         equalizer_frame.pack(pady=30)
-        equalizer_window.mainloop()
     else:
         destroy_equalizer()
         open_window1=False
