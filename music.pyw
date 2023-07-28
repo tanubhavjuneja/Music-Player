@@ -60,24 +60,25 @@ def play_video(event=None):
         cv2.destroyAllWindows()
         return video_playback
 def update_song_color():
-    global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing
+    global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing,small_window
     queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
-    for sn,song_button in enumerate(song_buttons):
-        if len(pf)<len(pforg):
-            if sn == pforg.index(np):
-                song_button.configure(fg_color="DarkOrchid3")
+    if small_window==False:
+        for sn,song_button in enumerate(song_buttons):
+            if len(pf)<len(pforg):
+                if sn == pforg.index(np):
+                    song_button.configure(fg_color="DarkOrchid3")
+                else:
+                    song_button.configure(fg_color=bgcc)
             else:
-                song_button.configure(fg_color=bgcc)
-        else:
-            if sn == pf.index(np):
-                song_button.configure(fg_color="DarkOrchid3")
-            else:
-                song_button.configure(fg_color=bgcc)
-    if queue_playing==True:
-        for sname in pf[n+1:]:
-            queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
+                if sn == pf.index(np):
+                    song_button.configure(fg_color="DarkOrchid3")
+                else:
+                    song_button.configure(fg_color=bgcc)
+        if queue_playing==True:
+            for sname in pf[n+1:]:
+                queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
 def open_playlist_window(event):
-    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons
+    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons,edit
     if open_window==False:
         open_window=True
         playlist_window = ctk.CTkToplevel()
@@ -121,8 +122,9 @@ def open_playlist_window(event):
         reset_button = ctk.CTkButton(playlist_window,text="Reset",width=300,height=30,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 16, "bold"))
         reset_button.place(rely=0.92,relx=0.05)
         update_song_color()
-        playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
-        playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
+        if edit==True:
+            playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
+            playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
     else:
         on_playlist_window_close()
 def reset_queue():
@@ -219,7 +221,7 @@ def select_file_location():
     main.destroy()
     read_file_location()
 def start():
-    global small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -253,9 +255,10 @@ def start():
     playing=False
     pbs=False
     ews=False
+    edit=False
     mainstart()
 def mainstart():
-    global vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
+    global edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
     main = ctk.CTk()
     main.title("Music Player")
     main.geometry("440x250+740+370")
@@ -339,8 +342,9 @@ def mainstart():
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:open_playlist_window(None))
-    main.bind("<B1-Motion>", lambda event, window=main: on_drag_motion(event, window))
-    main.bind("<ButtonPress-1>", lambda event, window=main: on_drag_start(event, window))
+    if edit==True:
+        main.bind("<B1-Motion>", lambda event, window=main: on_drag_motion(event, window))
+        main.bind("<ButtonPress-1>", lambda event, window=main: on_drag_start(event, window))
     main.focus_force()
     if pbs==True:
         open_playlist_window(None)
@@ -745,7 +749,7 @@ def destroy_equalizer():
     equalizer_window.destroy()
     open_window1=False
 def open_equalizer_window(event):
-    global main,open_window1,equalizer_window
+    global main,open_window1,equalizer_window,edit
     if open_window1==False:
         open_window1=True
         equalizer_window = ctk.CTkToplevel( )
@@ -774,6 +778,9 @@ def open_equalizer_window(event):
             scale.pack()
             band_scales.append(scale)
         equalizer_frame.pack(pady=30)
+        if edit==True:
+            equalizer_window.bind("<B1-Motion>", lambda event, window=equalizer_window: on_drag_motion(event, window))
+            equalizer_window.bind("<ButtonPress-1>", lambda event, window=equalizer_window: on_drag_start(event, window))
     else:
         destroy_equalizer()
         open_window1=False
