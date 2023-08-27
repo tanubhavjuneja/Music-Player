@@ -157,8 +157,9 @@ def open_playlist_window(event):
     else:
         on_playlist_window_close()
 def reset_queue():
-    global pf,pforg,n,np,queue_playing
+    global pf,pforg,n,np,queue_playing,pforg,pforg1
     queue_playing=False
+    pforg=pforg1
     n=pforg.index(np)
     pf=pforg.copy()
     refresh_window()
@@ -657,7 +658,6 @@ def ppl(event):
 def nextx(event):
     global n,pf,vp,pforg,queue_playing,open_window
     n += 1
-    
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
             n = 0
@@ -837,12 +837,14 @@ def update_band(index, val):
     vlc.libvlc_audio_equalizer_set_amp_at_index(equalizer, float(val), index)
     vp.set_equalizer(equalizer)
 def shuffle(event):
-    global pf,cunt,np
+    global pf,cunt,np,pforg,pforg1
     if cunt%2!=0:
         repeat(None)
     pf.remove(np)
     random.shuffle(pf)
     pf.insert(n,np)
+    pforg1=pforg
+    pforg=pf
     refresh_window()
     return pf
 def refresh_window():
