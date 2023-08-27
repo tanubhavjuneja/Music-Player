@@ -8,6 +8,18 @@ import cv2
 import customtkinter as ctk
 from PIL import Image
 import tkfilebrowser
+import logging
+from functools import wraps
+logging.basicConfig(filename='music_player.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+def log_exceptions(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logging.exception("%s: %s", func.__name__, e)
+            raise
+    return wrapper
 def play_video(event=None):
     global n,vp,clip,emit,pf,video_playback
     video_playback=True
