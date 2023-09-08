@@ -90,12 +90,12 @@ def update_song_color():
             for sname in pf[n+1:]:
                 queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
 def open_playlist_window(event):
-    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons,edit
+    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons,edit,playlist_window_x,playlist_window_y
     if open_window==False:
         open_window=True
         playlist_window = ctk.CTkToplevel()
         playlist_window.title("Playlist")
-        playlist_window.geometry("340x590+390+230")
+        playlist_window.geometry(f"340x590+{playlist_window_x}+{playlist_window_y}")
         playlist_window.overrideredirect(True)
         playlist_label=ctk.CTkLabel(playlist_window,text="Playlist", font=("Arial", 16, "bold"))
         playlist_label.place(rely=0.01,relx=0.05)
@@ -251,7 +251,7 @@ def select_file_location():
     main.destroy()
     read_file_location()
 def start():
-    global edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -286,12 +286,18 @@ def start():
     pbs=False
     ews=False
     edit=False
+    window_x = 740
+    window_y = 370
+    playlist_window_y=230
+    playlist_window_x=390
+    equalizer_window_x=1190
+    equalizer_window_y=230
     mainstart()
 def mainstart():
-    global edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
+    global window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
     main = ctk.CTk()
     main.title("Music Player")
-    main.geometry("440x250+740+370")
+    main.geometry(f"440x250+{window_x}+{window_y}")
     main.overrideredirect(True)
     main.attributes("-alpha",100.0)
     main.lift()
@@ -325,16 +331,19 @@ def mainstart():
     fullscreen_icon = ctk.CTkImage(Image.open(mfl+"icons/fullscreen.png"), size=(18, 18))
     close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(15, 15))
     music_icon = ctk.CTkImage(Image.open(mfl+"icons/logo.png"), size=(25, 25))
+    edit_icon = ctk.CTkImage(Image.open(mfl+"icons/edit.png"), size=(17, 17))
     logo = ctk.CTkLabel(main, image=music_icon,width=1,text="")
     logo.place(relx=0.03,rely=0.04)
     toolbar = ctk.CTkFrame(main, bg_color=bgcc,fg_color=bgcc)
+    edit_button = ctk.CTkButton(toolbar, image=edit_icon, command=edit_state,text="",width=1)
+    edit_button.pack(side="left", padx=2, pady=2)
     minimize_button = ctk.CTkButton(toolbar, image=minimize_icon, command=sw,text="",width=1)
     minimize_button.pack(side="left", padx=2, pady=2)
     maximize_button = ctk.CTkButton(toolbar, image=fullscreen_icon, command=call_fullscreen,text="",width=1)
     maximize_button.pack(side="left", padx=2, pady=2)
     close_button = ctk.CTkButton(toolbar, image=close_icon, command=ee,text="",width=1)
     close_button.pack(side="left", padx=2, pady=2)
-    toolbar.place(rely=0.01,relx=0.735)
+    toolbar.place(rely=0.01,relx=0.655)
     pre = ctk.CTkButton(npp, image=previous_icon, command=lambda: previous(None),text="",width=1)
     pp = ctk.CTkButton(npp, image=pause_icon, command=lambda: ppl(None),text="",width=1)
     next = ctk.CTkButton(npp, image=next_icon, command=lambda: nextxx(None),text="",width=1)
@@ -388,15 +397,37 @@ def mainstart():
     else:
         set_song_length()
     main.mainloop()
+def edit_state():
+    global edit,main,open_window,pbs,ews
+    edit=not edit
+    if open_window==True:
+        on_playlist_window_close()
+        pbs=True
+    if open_window1==True:
+        destroy_equalizer()
+        ews=True
+    main.destroy()
+    mainstart()
 def on_drag_start(event, window):
     window.x = event.x
     window.y = event.y
 def on_drag_motion(event, window):
+    global window_x, window_y, equalizer_window_x, equalizer_window_y, playlist_window_x, playlist_window_y
     delta_x = event.x - window.x
     delta_y = event.y - window.y
-    new_x = window.winfo_x() + delta_x
-    new_y = window.winfo_y() + delta_y
-    window.geometry(f"+{new_x}+{new_y}")
+    window_title = window.title()
+    if window_title=="Music Player":
+        window_x = window.winfo_x() + delta_x
+        window_y = window.winfo_y() + delta_y
+        window.geometry(f"+{window_x}+{window_y}")
+    elif window_title == "Equalizer":
+        equalizer_window_x = window.winfo_x() + delta_x
+        equalizer_window_y = window.winfo_y() + delta_y
+        window.geometry(f"+{equalizer_window_x}+{equalizer_window_y}")
+    elif window_title == "Playlist":
+        playlist_window_x = window.winfo_x() + delta_x
+        playlist_window_y = window.winfo_y() + delta_y
+        window.geometry(f"+{playlist_window_x}+{playlist_window_y}")
 def pb(event):
     global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons
     if pbs==False:
@@ -778,12 +809,12 @@ def destroy_equalizer():
     equalizer_window.destroy()
     open_window1=False
 def open_equalizer_window(event):
-    global main,open_window1,equalizer_window,edit
+    global main,open_window1,equalizer_window,edit,equalizer_window_x,equalizer_window_y
     if open_window1==False:
         open_window1=True
         equalizer_window = ctk.CTkToplevel( )
         equalizer_window.title("Equalizer")
-        equalizer_window.geometry("250x590+1190+230")
+        equalizer_window.geometry(f"250x590+{equalizer_window_x}+{equalizer_window_y}")
         equalizer_window.overrideredirect(True)
         equalizer_label=ctk.CTkLabel(equalizer_window,text="Playlist", font=("Arial", 16, "bold"))
         equalizer_label.place(relx=0.05,rely=0.008)
