@@ -251,7 +251,7 @@ def select_file_location():
     main.destroy()
     read_file_location()
 def start():
-    global equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -277,6 +277,7 @@ def start():
     fscreen=False
     small_window=False
     pfb=[]
+    pforg1=None
     ptop = mfl+"music"
     pf = os.listdir(ptop)
     pf.sort()
@@ -868,13 +869,12 @@ def update_band(index, val):
     vlc.libvlc_audio_equalizer_set_amp_at_index(equalizer, float(val), index)
     vp.set_equalizer(equalizer)
 def shuffle(event):
-    global pf,cunt,np,pforg,pforg1
-    if cunt%2!=0:
-        repeat(None)
+    global pf,cunt,np,pforg,pforg1,n
     pf.remove(np)
     random.shuffle(pf)
     pf.insert(n,np)
-    pforg1=pforg
+    if pforg1 is None:
+        pforg1=pforg
     pforg=pf
     refresh_window()
     return pf
