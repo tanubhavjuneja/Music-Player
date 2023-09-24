@@ -329,7 +329,7 @@ def open_mood_window(event):
         close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
         close_button = ctk.CTkButton(mood_window, image=close_icon, command=on_mood_window_close,text="",width=1)
         close_button.place(relx=0.928,rely=0.01)
-        romantic_icon = ctk.CTkImage(Image.open(mfl+"icons/romantic.png"), size=(50, 50))
+        romantic_icon = ctk.CTkImage(Image.open(mfl+"icons/romantic.png"), size=(55, 55))
         happy_icon = ctk.CTkImage(Image.open(mfl+"icons/happy.png"), size=(50, 50))
         sad_icon = ctk.CTkImage(Image.open(mfl+"icons/sad.png"), size=(50, 50))
         confident_icon = ctk.CTkImage(Image.open(mfl+"icons/confident.png"), size=(50, 50))
@@ -380,7 +380,7 @@ def on_mood_window_close():
     mood_window.destroy()
     open_window2=False
 def mainstart():
-    global mws,window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
+    global vp,mws,window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
     main = ctk.CTk()
     main.title("Music Player")
     main.geometry(f"440x250+{window_x}+{window_y}")
@@ -632,7 +632,7 @@ def mw(event):
     if mws==False:
         mws=True
         mood_frame=ctk.CTkFrame(main)
-        romantic_icon = ctk.CTkImage(Image.open(mfl+"icons/romantic.png"), size=(70, 70))
+        romantic_icon = ctk.CTkImage(Image.open(mfl+"icons/romantic.png"), size=(78, 78))
         happy_icon = ctk.CTkImage(Image.open(mfl+"icons/happy.png"), size=(70, 70))
         sad_icon = ctk.CTkImage(Image.open(mfl+"icons/sad.png"), size=(70, 70))
         confident_icon = ctk.CTkImage(Image.open(mfl+"icons/confident.png"), size=(70, 70))
@@ -797,7 +797,7 @@ def update_song_name():
             else:
                 song_name_label.configure(text=song_name,font=("Arial", 120, "bold"))
 def ppl(event):
-    global pp,pause_icon,play_icon, video_playback,small_window
+    global pp,pause_icon,play_icon, video_playback,small_window,vp
     if  fscreen==False:
         play_icon = ctk.CTkImage(Image.open(mfl+"icons/play.png"), size=(40, 40))
         pause_icon = ctk.CTkImage(Image.open(mfl+"icons/pause.png"), size=(40, 40))
@@ -929,10 +929,9 @@ def set_song_length():
     timestr="00:00"
     song_progress_label.configure(text=str(timestr)+"/"+str(time_str))
     status = vp.get_state()
-    if status == vlc.State.Playing and video_playback==False:
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(update_song_progress,'interval', seconds=1, args=['value'],max_instances=150,id="job2")
-        scheduler.start()
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(update_song_progress,'interval', seconds=1, args=['value'],max_instances=150,id="job2")
+    scheduler.start()
 def destroy_equalizer():
     global equalizer_window,open_window1
     equalizer_window.destroy()
@@ -1018,7 +1017,7 @@ def refresh_window():
         time.sleep(0.1)
         pb(None)
 def ee():
-    global vp,main
+    global vp,main,scheduler
     vp.stop()
     scheduler.shutdown(wait=False)
     if open_window1==True:
