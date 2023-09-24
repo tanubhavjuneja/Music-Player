@@ -560,7 +560,7 @@ def ew(event):
         ews=True
         vslider.place(relx=0.845)
         equalizer_window=ctk.CTkFrame(main)
-        preamp_label = ctk.CTkLabel(equalizer_window, text="Preamp(dB)", font=("Arial", 25, "bold"))
+        preamp_label = ctk.CTkLabel(equalizer_window, text="Preamp", font=("Arial", 25, "bold"))
         preamp_label.pack()
         preamp_scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=update_preamp,height=25,width=280)
         preamp_scale.set(vlc.libvlc_audio_equalizer_get_preamp(equalizer))
@@ -569,7 +569,7 @@ def ew(event):
         band_frequencies = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000]
         for i in range(10):
             freq = band_frequencies[i]
-            freq_label = ctk.CTkLabel(equalizer_window, text=f'{freq} Hz (dB)', font=("Arial", 25, "bold"))
+            freq_label = ctk.CTkLabel(equalizer_window, text=f'{freq} Hz', font=("Arial", 25, "bold"))
             freq_label.pack()
             scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=lambda val, i=i: update_band(i, val),height=25,width=280)
             scale.set(vlc.libvlc_audio_equalizer_get_amp_at_index(equalizer, i))
@@ -950,7 +950,7 @@ def open_equalizer_window(event):
         close_button = ctk.CTkButton(equalizer_window, image=close_icon, command=destroy_equalizer,text="",width=1)
         close_button.place(relx=0.87,rely=0.008)
         equalizer_frame=ctk.CTkFrame(equalizer_window)
-        preamp_label = ctk.CTkLabel(equalizer_frame, text="Preamp(dB)", font=("Arial", 12, "bold"))
+        preamp_label = ctk.CTkLabel(equalizer_frame, text="Preamp", font=("Arial", 12, "bold"))
         preamp_label.pack()
         preamp_scale = ctk.CTkSlider(equalizer_frame, from_=-20, to=20, orientation='horizontal',command=update_preamp,height=20)
         preamp_scale.set(vlc.libvlc_audio_equalizer_get_preamp(equalizer))
@@ -959,7 +959,7 @@ def open_equalizer_window(event):
         band_frequencies = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000]
         for i in range(10):
             freq = band_frequencies[i]
-            freq_label = ctk.CTkLabel(equalizer_frame, text=f'{freq} Hz (dB)', font=("Arial", 12, "bold"))
+            freq_label = ctk.CTkLabel(equalizer_frame, text=f'{freq} Hz', font=("Arial", 12, "bold"))
             freq_label.pack()
             scale = ctk.CTkSlider(equalizer_frame, from_=-20, to=20, orientation='horizontal',command=lambda val, i=i: update_band(i, val),height=20)
             scale.set(vlc.libvlc_audio_equalizer_get_amp_at_index(equalizer, i))
