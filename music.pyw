@@ -27,6 +27,7 @@ def play_video(event=None):
         func()
         clip_time = time.time()
         clip = cv2.VideoCapture(ff) 
+        print(clip.get(cv2.CAP_PROP_FPS))
         clip.set(cv2.CAP_PROP_POS_MSEC, emit*1000)
         cv2.namedWindow('Video Player', cv2.WINDOW_NORMAL) 
         cv2.setWindowProperty('Video Player', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -111,7 +112,7 @@ def open_playlist_window(event):
         queue_buttons=[]
         if len(pf)<len(pforg):
             for sn in range(len(pforg)):
-                song_namex = pforg[sn][:-4]
+                song_namex = pforg[sn][:-5]
                 song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
                 song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
                 song_buttons.append(song_button)
@@ -122,7 +123,7 @@ def open_playlist_window(event):
                 queue_button.grid(row=sn, column=1)
         else:
             for sn in range(len(pf)):
-                song_namex = pf[sn][:-4]
+                song_namex = pf[sn][:-5]
                 song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
                 song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
                 song_buttons.append(song_button)
@@ -146,11 +147,12 @@ def open_playlist_window(event):
         playlist_window.bind('<Alt_R>', nextxx)
         playlist_window.bind("<s>",lambda event:shuffle(None))
         playlist_window.bind("<r>",lambda event:repeat(None))
-        playlist_window.bind("<e>",lambda event:ew(None))
+        playlist_window.bind("<e>",lambda event:open_equalizer_window(None))
         playlist_window.bind("<f>",lambda event:play_video(None))
         playlist_window.bind("<a>",lambda event:rewindr(None))
         playlist_window.bind("<d>",lambda event:fastff(None))
-        playlist_window.bind("<p>",lambda event:pb(None)) 
+        playlist_window.bind("<p>",lambda event:open_playlist_window(None)) 
+        playlist_window.bind("<m>",lambda event:open_mood_window(None)) 
         if edit==True:
             playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
             playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
@@ -250,8 +252,28 @@ def select_file_location():
     file.close()
     main.destroy()
     read_file_location()
+def sort_songs():
+    global mfl,pf,pforg,ptop,romantic,happy,sad,confident
+    ptop = mfl+"music"
+    pf = os.listdir(ptop)
+    romantic=[]
+    happy=[]
+    sad=[]
+    confident=[]
+    for song in pf:
+        cat=song[-5]
+        if cat=="1":
+            romantic.append(song)
+        elif cat=="2":
+            happy.append(song)
+        elif cat=="3":
+            sad.append(song)
+        elif cat=="4":
+            confident.append(song)
+    pf.sort()
+    pforg=pf.copy()
 def start():
-    global pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -274,17 +296,15 @@ def start():
     song_length=0
     open_window=False
     open_window1=False
+    open_window2=False
     fscreen=False
     small_window=False
-    pfb=[]
     pforg1=None
-    ptop = mfl+"music"
-    pf = os.listdir(ptop)
-    pf.sort()
-    pforg=pf.copy()
-    song_name = pf[n][:-4]
+    sort_songs()
+    song_name = pf[n][:-5]
     playing=False
     pbs=False
+    mws=False
     ews=False
     edit=False
     window_x = 740
@@ -293,9 +313,68 @@ def start():
     playlist_window_x=390
     equalizer_window_x=1190
     equalizer_window_y=230
+    mood_window_x=740
+    mood_window_y=630
     mainstart()
+def open_mood_window(event):
+    global mood_window,mood_window_x,mood_window_y,open_window2,romantic,happy,sad,confident
+    if open_window2==False:
+        open_window2=True
+        mood_window = ctk.CTkToplevel()
+        mood_window.title("Mood")
+        mood_window.geometry(f"440x150+{mood_window_x}+{mood_window_y}")
+        mood_window.overrideredirect(True)
+        close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
+        close_button = ctk.CTkButton(mood_window, image=close_icon, command=on_mood_window_close,text="",width=1)
+        close_button.place(relx=0.928,rely=0.01)
+        romantic_icon = ctk.CTkImage(Image.open(mfl+"icons/romantic.png"), size=(50, 50))
+        happy_icon = ctk.CTkImage(Image.open(mfl+"icons/happy.png"), size=(50, 50))
+        sad_icon = ctk.CTkImage(Image.open(mfl+"icons/sad.png"), size=(50, 50))
+        confident_icon = ctk.CTkImage(Image.open(mfl+"icons/confident.png"), size=(50, 50))
+        romantic_button=ctk.CTkButton(mood_window,image=romantic_icon,command=lambda:set_mood(romantic),text="",width=1)
+        happy_button=ctk.CTkButton(mood_window,image=happy_icon,command=lambda:set_mood(happy),text="",width=1)
+        sad_button=ctk.CTkButton(mood_window,image=sad_icon,command=lambda:set_mood(sad),text="",width=1)
+        confident_button=ctk.CTkButton(mood_window,image=confident_icon,command=lambda:set_mood(confident),text="",width=1)
+        romantic_button.pack(side="left",padx=25)
+        happy_button.pack(side="left",padx=20)
+        sad_button.pack(side="left",padx=20)
+        confident_button.pack(side="left",padx=20)
+        mood_window.bind('<Down>', lambda event: vmove(vs))
+        mood_window.bind('<Up>', lambda event: vmove(vs))
+        mood_window.bind('<Left>', previous)
+        mood_window.bind('<Alt_L>', previous)
+        mood_window.bind('<b>', previous)
+        mood_window.bind('<space>', ppl)
+        mood_window.bind('<Return>', ppl)
+        mood_window.bind('<n>', nextxx)
+        mood_window.bind('<Right>', nextxx)
+        mood_window.bind('<Alt_R>', nextxx)
+        mood_window.bind("<s>",lambda event:shuffle(None))
+        mood_window.bind("<r>",lambda event:repeat(None))
+        mood_window.bind("<e>",lambda event:open_equalizer_window(None))
+        mood_window.bind("<f>",lambda event:play_video(None))
+        mood_window.bind("<a>",lambda event:rewindr(None))
+        mood_window.bind("<d>",lambda event:fastff(None))
+        mood_window.bind("<p>",lambda event:open_playlist_window(None)) 
+        mood_window.bind("<m>",lambda event:open_mood_window(None)) 
+        if edit==True:
+            mood_window.bind("<B1-Motion>", lambda event, window=mood_window: on_drag_motion(event, window))
+            mood_window.bind("<ButtonPress-1>", lambda event, window=mood_window: on_drag_start(event, window))
+    else:
+        on_mood_window_close()
+def set_mood(mood):
+    global pf,n
+    pf=mood
+    refresh_window()
+    n=0
+    vp.stop()
+    play()
+def on_mood_window_close():
+    global mood_window,open_window2
+    mood_window.destroy()
+    open_window2=False
 def mainstart():
-    global window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
+    global mws,window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
     main = ctk.CTk()
     main.title("Music Player")
     main.geometry(f"440x250+{window_x}+{window_y}")
@@ -306,7 +385,7 @@ def mainstart():
         song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 30, "bold"))
     else:
         song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 40, "bold"))
-    song_name_label.place(relx=0.5, rely=0.15, anchor="n")
+    song_name_label.place(relx=0.5, rely=0.16, anchor="n")
     vslider = ctk.CTkSlider(main, from_=0, to=100, orientation='vertical', width=20, height=90, command=vmove)
     vslider.set(vs)
     vslider.place(relx=0.97, rely=0.32, anchor="e")
@@ -320,7 +399,7 @@ def mainstart():
     npp=ctk.CTkFrame(main)
     otf=ctk.CTkFrame(main)
     playlist_icon = ctk.CTkImage(Image.open(mfl+"icons/playlist.png"), size=(30, 30))
-    equalizer_icon = ctk.CTkImage(Image.open(mfl+"icons/equalizer.png"), size=(30, 30))
+    equalizer_icon = ctk.CTkImage(Image.open(mfl+"icons/equalizer.png"), size=(20, 20))
     shuffle_icon = ctk.CTkImage(Image.open(mfl+"icons/shuffle.png"), size=(30, 30))
     repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(30, 30))
     repeat_icon1 = ctk.CTkImage(Image.open(mfl+"icons/repeat1.png"), size=(30, 30))
@@ -333,9 +412,12 @@ def mainstart():
     close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(15, 15))
     music_icon = ctk.CTkImage(Image.open(mfl+"icons/logo.png"), size=(25, 25))
     edit_icon = ctk.CTkImage(Image.open(mfl+"icons/edit.png"), size=(17, 17))
+    mood_icon=ctk.CTkImage(Image.open(mfl+"icons/mood.png"), size=(30, 30))
     logo = ctk.CTkLabel(main, image=music_icon,width=1,text="")
     logo.place(relx=0.03,rely=0.04)
     toolbar = ctk.CTkFrame(main, bg_color=bgcc,fg_color=bgcc)
+    equalizer_button = ctk.CTkButton(toolbar, image=equalizer_icon, command=lambda:open_equalizer_window(None),text="",width=1)
+    equalizer_button.pack(side="left",padx=2)
     edit_button = ctk.CTkButton(toolbar, image=edit_icon, command=edit_state,text="",width=1)
     edit_button.pack(side="left", padx=2, pady=2)
     minimize_button = ctk.CTkButton(toolbar, image=minimize_icon, command=sw,text="",width=1)
@@ -344,7 +426,7 @@ def mainstart():
     maximize_button.pack(side="left", padx=2, pady=2)
     close_button = ctk.CTkButton(toolbar, image=close_icon, command=ee,text="",width=1)
     close_button.pack(side="left", padx=2, pady=2)
-    toolbar.place(rely=0.01,relx=0.655)
+    toolbar.place(rely=0.01,relx=0.56)
     pre = ctk.CTkButton(npp, image=previous_icon, command=lambda: previous(None),text="",width=1)
     pp = ctk.CTkButton(npp, image=pause_icon, command=lambda: ppl(None),text="",width=1)
     next = ctk.CTkButton(npp, image=next_icon, command=lambda: nextxx(None),text="",width=1)
@@ -352,18 +434,18 @@ def mainstart():
     pp.pack(side="left",padx=45)
     next.pack(side="left",padx=45)
     npp.place(rely=0.6,relx=0.02)
-    equalizer_button = ctk.CTkButton(otf, image=equalizer_icon, command=lambda:open_equalizer_window(None),text="",width=1)
     shuffle_button = ctk.CTkButton(otf, image=shuffle_icon, command=lambda:shuffle(None),text="",width=1)
     repeat_button = ctk.CTkButton(otf, image=repeat_icon, command=lambda:repeat(None),text="",width=1)
     if repeat_song==True:
         repeat_button.configure(image=repeat_icon1)
     fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
     playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:open_playlist_window(None),text="",width=1)
+    mood_button = ctk.CTkButton(otf, image=mood_icon,command=lambda:open_mood_window(None),text="",width=1)
     playlist_button.pack(side="left",padx=20)
     fullscreen_button.pack(side="left",padx=21)
     repeat_button.pack(side="left",padx=21)
     shuffle_button.pack(side="left",padx=21)
-    equalizer_button.pack(side="left",padx=21)
+    mood_button.pack(side="left",padx=21)
     otf.place(rely=0.82)
     main.bind('<Down>', lambda event: vmove(vs-5))
     main.bind('<Up>', lambda event: vmove(vs+5))
@@ -382,6 +464,7 @@ def mainstart():
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:open_playlist_window(None))
+    main.bind("<m>",lambda event:open_mood_window(None))
     if edit==True:
         main.bind("<B1-Motion>", lambda event, window=main: on_drag_motion(event, window))
         main.bind("<ButtonPress-1>", lambda event, window=main: on_drag_start(event, window))
@@ -392,6 +475,9 @@ def mainstart():
     if ews==True:
         open_equalizer_window(None)
         ews=False
+    if mws==True:
+        open_mood_window(None)
+        mws=False
     if playing != True:
         play()
         playing=True
@@ -399,7 +485,7 @@ def mainstart():
         set_song_length()
     main.mainloop()
 def edit_state():
-    global edit,main,open_window,pbs,ews
+    global edit,main,open_window,pbs,ews,mws
     edit=not edit
     if open_window==True:
         on_playlist_window_close()
@@ -407,13 +493,16 @@ def edit_state():
     if open_window1==True:
         destroy_equalizer()
         ews=True
+    if open_window2==True:
+        on_mood_window_close()
+        mws=True
     main.destroy()
     mainstart()
 def on_drag_start(event, window):
     window.x = event.x
     window.y = event.y
 def on_drag_motion(event, window):
-    global window_x, window_y, equalizer_window_x, equalizer_window_y, playlist_window_x, playlist_window_y
+    global window_x, window_y,mood_window_x,mood_window_y, equalizer_window_x, equalizer_window_y, playlist_window_x, playlist_window_y
     delta_x = event.x - window.x
     delta_y = event.y - window.y
     window_title = window.title()
@@ -429,6 +518,10 @@ def on_drag_motion(event, window):
         playlist_window_x = window.winfo_x() + delta_x
         playlist_window_y = window.winfo_y() + delta_y
         window.geometry(f"+{playlist_window_x}+{playlist_window_y}")
+    elif window_title == "Mood":
+        mood_window_x = window.winfo_x() + delta_x
+        mood_window_y = window.winfo_y() + delta_y
+        window.geometry(f"+{mood_window_x}+{mood_window_y}")
 def pb(event):
     global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons
     if pbs==False:
@@ -441,7 +534,7 @@ def pb(event):
         song_buttons=[]
         queue_buttons=[]
         for sn in range(len(pf)):
-            song_namex = pf[sn][:-4]
+            song_namex = pf[sn][:-5]
             song_button = ctk.CTkButton(scrollable_frame, width=340, text=song_namex, font=("Arial", 28, "bold"), bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w")
             song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
             song_buttons.append(song_button)
@@ -528,9 +621,31 @@ def call_fullscreen():
     main.destroy()
     fscreen=True
     fullscreen()
+def mw(event):
+    global mws,main,mood_frame,romantic,happy,sad,confident
+    if mws==False:
+        mws=True
+        mood_frame=ctk.CTkFrame(main)
+        romantic_icon = ctk.CTkImage(Image.open(mfl+"icons/romantic.png"), size=(70, 70))
+        happy_icon = ctk.CTkImage(Image.open(mfl+"icons/happy.png"), size=(70, 70))
+        sad_icon = ctk.CTkImage(Image.open(mfl+"icons/sad.png"), size=(70, 70))
+        confident_icon = ctk.CTkImage(Image.open(mfl+"icons/confident.png"), size=(70, 70))
+        romantic_button=ctk.CTkButton(mood_frame,image=romantic_icon,command=lambda:set_mood(romantic),text="",width=1)
+        happy_button=ctk.CTkButton(mood_frame,image=happy_icon,command=lambda:set_mood(happy),text="",width=1)
+        sad_button=ctk.CTkButton(mood_frame,image=sad_icon,command=lambda:set_mood(sad),text="",width=1)
+        confident_button=ctk.CTkButton(mood_frame,image=confident_icon,command=lambda:set_mood(confident),text="",width=1)
+        romantic_button.pack(side="left",padx=30)
+        happy_button.pack(side="left",padx=30)
+        sad_button.pack(side="left",padx=30)
+        confident_button.pack(side="left",padx=30)
+        mood_frame.place(relx=0.345,rely=0.4)
+    else:
+        mood_frame.destroy()
+        mws=False
 def fullscreen():
-    global repeat_icon1,vslider,ews,pbs,song_name_label,repeat_button,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons,open_window1
+    global open_window2,repeat_icon1,vslider,ews,pbs,mws,song_name_label,repeat_button,vslider,cunt,scheduler,equalizer,fscreen,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing, pf, bgcc, n,song_buttons,open_window1
     ews=False
+    mws=False
     pbs=False
     main = ctk.CTk()
     main.attributes('-fullscreen', True)
@@ -558,7 +673,7 @@ def fullscreen():
     npp=ctk.CTkFrame(main)
     otf=ctk.CTkFrame(main)
     playlist_icon = ctk.CTkImage(Image.open(mfl+"icons/playlist.png"), size=(90,90))
-    equalizer_icon = ctk.CTkImage(Image.open(mfl+"icons/equalizer.png"), size=(90,90))
+    equalizer_icon = ctk.CTkImage(Image.open(mfl+"icons/equalizer.png"), size=(20,20))
     shuffle_icon = ctk.CTkImage(Image.open(mfl+"icons/shuffle.png"), size=(90,90))
     repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(90,90))
     repeat_icon1 = ctk.CTkImage(Image.open(mfl+"icons/repeat1.png"), size=(90,90))
@@ -570,16 +685,19 @@ def fullscreen():
     close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(15, 15))
     restore_icon = ctk.CTkImage(Image.open(mfl+"icons/restore.png"), size=(20, 20))
     music_icon = ctk.CTkImage(Image.open(mfl+"icons/logo.png"), size=(25, 25))
+    mood_icon=ctk.CTkImage(Image.open(mfl+"icons/mood.png"), size=(90, 90))
     logo = ctk.CTkLabel(main, image=music_icon,width=1,text="")
     logo.place(relx=0.01,rely=0.01)
     toolbar = ctk.CTkFrame(main, bg_color=bgcc,fg_color=bgcc)
+    equalizer_button = ctk.CTkButton(toolbar, image=equalizer_icon, command=lambda:ew(None),text="",width=1)
+    equalizer_button.pack(side="left",padx=2,pady=2)
     minimize_button = ctk.CTkButton(toolbar, image=minimize_icon, command=sw,text="",width=1)
     minimize_button.pack(side="left", padx=2, pady=2)
     restore_button = ctk.CTkButton(toolbar, image=restore_icon, command=restart1,text="",width=1)
     restore_button.pack(side="left", padx=2, pady=2)
     close_button = ctk.CTkButton(toolbar, image=close_icon, command=ee,text="",width=1)
     close_button.pack(side="left", padx=2, pady=2)
-    toolbar.place(relx=0.94)
+    toolbar.place(relx=0.92)
     pre = ctk.CTkButton(npp, image=previous_icon, command=lambda: previous(None),text="",width=1)
     pp = ctk.CTkButton(npp, image=pause_icon, command=lambda: ppl(None),text="",width=1)
     next = ctk.CTkButton(npp, image=next_icon, command=lambda: nextxx(None),text="",width=1)
@@ -592,13 +710,13 @@ def fullscreen():
     if repeat_song==True:
         repeat_button.configure(image=repeat_icon1)
     fullscreen_button = ctk.CTkButton(otf, image=video_icon,command=lambda:play_video(None),text="",width=1)
-    equalizer_button = ctk.CTkButton(otf, image=equalizer_icon, command=lambda:ew(None),text="",width=1)
     playlist_button = ctk.CTkButton(otf, image=playlist_icon,command=lambda:pb(None),text="",width=1)
+    mood_button = ctk.CTkButton(otf, image=mood_icon,command=lambda:mw(None),text="",width=1)
     playlist_button.pack(side="left",padx=128)
     fullscreen_button.pack(side="left",padx=150)
     repeat_button.pack(side="left",padx=150)
     shuffle_button.pack(side="left",padx=150)
-    equalizer_button.pack(side="left",padx=150)
+    mood_button.pack(side="left",padx=150)
     otf.place(rely=0.87)
     main.bind('<Down>', lambda event: vmove(vs))
     main.bind('<Up>', lambda event: vmove(vs))
@@ -617,6 +735,7 @@ def fullscreen():
     main.bind("<a>",lambda event:rewindr(None))
     main.bind("<d>",lambda event:fastff(None))
     main.bind("<p>",lambda event:pb(None)) 
+    main.bind("<m>",lambda event:mw(None)) 
     main.focus_force()
     if open_window==True:
         pb(None)
@@ -624,6 +743,9 @@ def fullscreen():
     if open_window1==True:
         ew(None)
         open_window1=False
+    if open_window2==True:
+        mw(None)
+        open_window2=False
     set_song_length()
     main.mainloop()
 def restart(): 
@@ -656,7 +778,7 @@ def rewindr(event):
     vp.play()
 def update_song_name():
     global song_name_label,fscreen,small_window,np,song_name
-    song_name = np[:-4]
+    song_name = np[:-5]
     if small_window==False:
         if  fscreen==False:
             if len(song_name)>=17:
@@ -851,11 +973,12 @@ def open_equalizer_window(event):
         equalizer_window.bind('<Alt_R>', nextxx)
         equalizer_window.bind("<s>",lambda event:shuffle(None))
         equalizer_window.bind("<r>",lambda event:repeat(None))
-        equalizer_window.bind("<e>",lambda event:ew(None))
+        equalizer_window.bind("<e>",lambda event:open_equalizer_window(None))
         equalizer_window.bind("<f>",lambda event:play_video(None))
         equalizer_window.bind("<a>",lambda event:rewindr(None))
         equalizer_window.bind("<d>",lambda event:fastff(None))
-        equalizer_window.bind("<p>",lambda event:pb(None)) 
+        equalizer_window.bind("<p>",lambda event:open_playlist_window(None)) 
+        equalizer_window.bind("<m>",lambda event:open_mood_window(None)) 
         if edit==True:
             equalizer_window.bind("<B1-Motion>", lambda event, window=equalizer_window: on_drag_motion(event, window))
             equalizer_window.bind("<ButtonPress-1>", lambda event, window=equalizer_window: on_drag_start(event, window))
