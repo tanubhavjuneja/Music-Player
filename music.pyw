@@ -161,7 +161,8 @@ def open_playlist_window(event):
 def reset_queue():
     global pf,pforg,n,np,queue_playing,pforg,pforg1
     queue_playing=False
-    pforg=pforg1
+    if pforg1!=None:
+        pforg=pforg1
     n=pforg.index(np)
     pf=pforg.copy()
     refresh_window()
@@ -194,10 +195,12 @@ def queue(index):
         n=0
     if pforg[index] not in pf:
         pf.append(pforg[index])
-        queue_buttons[index].configure(image=queue_icon1)
+        if open_window:
+            queue_buttons[index].configure(image=queue_icon1)
     elif pforg[index] in pf:
         pf.remove(pforg[index])
-        queue_buttons[index].configure(image=queue_icon)
+        if open_window:
+            queue_buttons[index].configure(image=queue_icon)
     else:
         qi-=1
     return queue_playing
@@ -363,11 +366,17 @@ def open_mood_window(event):
     else:
         on_mood_window_close()
 def set_mood(mood):
-    global pf,n
-    pf=mood
+    global n,pforg,vp
+    reset_queue()
+    print(pf)
+    for song in mood:
+        queue(pforg.index(song))
     refresh_window()
     n=0
+    if pf[n]not in mood:
+        n=1
     vp.stop()
+    print(pf,n,pf[n])
     play()
 def on_mood_window_close():
     global mood_window,open_window2
