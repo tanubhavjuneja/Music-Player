@@ -73,7 +73,10 @@ def play_video(event=None):
         return video_playback
 def update_song_color():
     global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing,small_window
-    queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
+    if fscreen==False:
+        queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
+    else:
+        queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(40, 40))
     if small_window==False:
         for sn,song_button in enumerate(song_buttons):
             if len(pf)<len(pforg):
@@ -183,9 +186,13 @@ def jump(index):
             n=index
             play()
 def queue(index):
-    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing
-    queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
-    queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
+    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen
+    if fscreen==False:
+        queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
+        queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
+    else:
+        queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(40, 40))
+        queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(40, 40))
     qi+=1
     queue_playing=True
     if len(pf)>=qi+1:
@@ -194,11 +201,11 @@ def queue(index):
         n=0
     if pforg[index] not in pf:
         pf.append(pforg[index])
-        if open_window:
+        if open_window==True or pbs==True:
             queue_buttons[index].configure(image=queue_icon1)
     elif pforg[index] in pf:
         pf.remove(pforg[index])
-        if open_window:
+        if open_window==True or pbs==True:
             queue_buttons[index].configure(image=queue_icon)
     else:
         qi-=1
@@ -532,7 +539,7 @@ def pb(event):
     global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons
     if pbs==False:
         pbs=True
-        scrollable_frame = ctk.CTkScrollableFrame(main, width=400, height=620)
+        scrollable_frame = ctk.CTkScrollableFrame(main, width=410, height=620)
         scrollable_frame.place(rely=0.05)
         scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
         scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
@@ -541,7 +548,7 @@ def pb(event):
         queue_buttons=[]
         for sn in range(len(pf)):
             song_namex = pf[sn][:-5]
-            song_button = ctk.CTkButton(scrollable_frame, width=340, text=song_namex, font=("Arial", 28, "bold"), bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w")
+            song_button = ctk.CTkButton(scrollable_frame, width=350, text=song_namex, font=("Arial", 28, "bold"), bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w")
             song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
             song_buttons.append(song_button)
             song_button.grid(row=sn, column=0)
