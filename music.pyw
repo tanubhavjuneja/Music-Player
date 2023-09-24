@@ -27,7 +27,6 @@ def play_video(event=None):
         func()
         clip_time = time.time()
         clip = cv2.VideoCapture(ff) 
-        print(clip.get(cv2.CAP_PROP_FPS))
         clip.set(cv2.CAP_PROP_POS_MSEC, emit*1000)
         cv2.namedWindow('Video Player', cv2.WINDOW_NORMAL) 
         cv2.setWindowProperty('Video Player', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
@@ -368,7 +367,6 @@ def open_mood_window(event):
 def set_mood(mood):
     global n,pforg,vp
     reset_queue()
-    print(pf)
     for song in mood:
         queue(pforg.index(song))
     refresh_window()
@@ -376,7 +374,6 @@ def set_mood(mood):
     if pf[n]not in mood:
         n=1
     vp.stop()
-    print(pf,n,pf[n])
     play()
 def on_mood_window_close():
     global mood_window,open_window2
