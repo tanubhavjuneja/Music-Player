@@ -310,13 +310,13 @@ def start():
     ews=False
     edit=False
     window_x = 740
-    window_y = 370
+    window_y = 390
     playlist_window_y=230
     playlist_window_x=390
     equalizer_window_x=1190
     equalizer_window_y=230
     mood_window_x=740
-    mood_window_y=630
+    mood_window_y=230
     mainstart()
 def open_mood_window(event):
     global mood_window,mood_window_x,mood_window_y,open_window2,romantic,happy,sad,confident
