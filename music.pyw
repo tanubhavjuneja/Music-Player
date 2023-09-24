@@ -565,11 +565,11 @@ def ew(event):
     global main,vslider,ews,equalizer_window
     if ews==False:
         ews=True
-        vslider.place(relx=0.845)
+        vslider.place(relx=0.805)
         equalizer_window=ctk.CTkFrame(main)
         preamp_label = ctk.CTkLabel(equalizer_window, text="Preamp", font=("Arial", 25, "bold"))
         preamp_label.pack()
-        preamp_scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=update_preamp,height=25,width=280)
+        preamp_scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=update_preamp,height=25,width=350)
         preamp_scale.set(vlc.libvlc_audio_equalizer_get_preamp(equalizer))
         preamp_scale.pack()
         band_scales = []
@@ -578,11 +578,11 @@ def ew(event):
             freq = band_frequencies[i]
             freq_label = ctk.CTkLabel(equalizer_window, text=f'{freq} Hz', font=("Arial", 25, "bold"))
             freq_label.pack()
-            scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=lambda val, i=i: update_band(i, val),height=25,width=280)
+            scale = ctk.CTkSlider(equalizer_window, from_=-20, to=20, orientation='horizontal',command=lambda val, i=i: update_band(i, val),height=25,width=350)
             scale.set(vlc.libvlc_audio_equalizer_get_amp_at_index(equalizer, i))
             scale.pack()
             band_scales.append(scale)
-        equalizer_window.place(rely=0.05,relx=0.85)
+        equalizer_window.place(rely=0.05,relx=0.81)
     else:
         equalizer_window.destroy()
         ews=False
