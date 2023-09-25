@@ -11,6 +11,14 @@ import tkfilebrowser
 import logging
 from functools import wraps
 logging.basicConfig(filename='music_player.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+class CTkLogHandler(logging.Handler):
+    def __init__(self, debug_frame):
+        super().__init__()
+        self.debug_frame = debug_frame
+    def emit(self, record):
+        msg = self.format(record)
+        self.debug_frame.insert('end', msg + '\n')
+        self.debug_frame.see('end')
 def log_exceptions(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -155,6 +163,7 @@ def open_playlist_window(event):
         playlist_window.bind("<d>",lambda event:fastff(None))
         playlist_window.bind("<p>",lambda event:open_playlist_window(None)) 
         playlist_window.bind("<m>",lambda event:open_mood_window(None)) 
+        playlist_window.bind("<z>",lambda event:open_debug_window(None)) 
         if edit==True:
             playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
             playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
@@ -282,7 +291,7 @@ def sort_songs():
     pf.sort()
     pforg=pf.copy()
 def start():
-    global mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -306,6 +315,7 @@ def start():
     open_window=False
     open_window1=False
     open_window2=False
+    open_window3=False
     fscreen=False
     small_window=False
     pforg1=None
@@ -317,13 +327,15 @@ def start():
     ews=False
     edit=False
     window_x = 740
-    window_y = 390
+    window_y = 340
     playlist_window_y=230
     playlist_window_x=390
     equalizer_window_x=1190
     equalizer_window_y=230
     mood_window_x=740
     mood_window_y=230
+    debug_window_x=740
+    debug_window_y=600
     mainstart()
 def open_mood_window(event):
     global mood_window,mood_window_x,mood_window_y,open_window2,romantic,happy,sad,confident
@@ -331,7 +343,7 @@ def open_mood_window(event):
         open_window2=True
         mood_window = ctk.CTkToplevel()
         mood_window.title("Mood")
-        mood_window.geometry(f"440x150+{mood_window_x}+{mood_window_y}")
+        mood_window.geometry(f"440x100+{mood_window_x}+{mood_window_y}")
         mood_window.overrideredirect(True)
         close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
         close_button = ctk.CTkButton(mood_window, image=close_icon, command=on_mood_window_close,text="",width=1)
@@ -366,6 +378,7 @@ def open_mood_window(event):
         mood_window.bind("<d>",lambda event:fastff(None))
         mood_window.bind("<p>",lambda event:open_playlist_window(None)) 
         mood_window.bind("<m>",lambda event:open_mood_window(None)) 
+        mood_window.bind("<z>",lambda event:open_debug_window(None)) 
         if edit==True:
             mood_window.bind("<B1-Motion>", lambda event, window=mood_window: on_drag_motion(event, window))
             mood_window.bind("<ButtonPress-1>", lambda event, window=mood_window: on_drag_start(event, window))
@@ -386,6 +399,56 @@ def on_mood_window_close():
     global mood_window,open_window2
     mood_window.destroy()
     open_window2=False
+def open_debug_window(event):
+    global open_window3,debug_window,bgcc,debug_frame,debug_handler
+    if open_window3==False:
+        logging.getLogger().setLevel(logging.DEBUG)
+        open_window3=True
+        debug_window = ctk.CTkToplevel()
+        debug_window.title("Debug")
+        debug_window.geometry(f"440x220+{debug_window_x}+{debug_window_y}")
+        debug_window.overrideredirect(True)
+        debug_label=ctk.CTkLabel(debug_window,text="Debug", font=("Arial", 16, "bold"))
+        debug_label.place(relx=0.05,rely=0.008)
+        debug_frame = ctk.CTkTextbox(debug_window, width=430, height=190,font=("Arial",16,"bold"),text_color="limegreen",fg_color=bgcc)
+        debug_frame.place(relx=0.01,rely=0.12)
+        close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
+        close_button = ctk.CTkButton(debug_window, image=close_icon, command=on_debug_window_close,text="",width=1)
+        close_button.place(relx=0.928,rely=0.01)
+        debug_handler = CTkLogHandler(debug_frame)
+        debug_handler.setLevel(logging.DEBUG)
+        debug_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(debug_handler)
+        debug_window.bind('<Down>', lambda event: vmove(vs))
+        debug_window.bind('<Up>', lambda event: vmove(vs))
+        debug_window.bind('<Left>', previous)
+        debug_window.bind('<Alt_L>', previous)
+        debug_window.bind('<b>', previous)
+        debug_window.bind('<space>', ppl)
+        debug_window.bind('<Return>', ppl)
+        debug_window.bind('<n>', nextxx)
+        debug_window.bind('<Right>', nextxx)
+        debug_window.bind('<Alt_R>', nextxx)
+        debug_window.bind("<s>",lambda event:shuffle(None))
+        debug_window.bind("<r>",lambda event:repeat(None))
+        debug_window.bind("<e>",lambda event:open_equalizer_window(None))
+        debug_window.bind("<f>",lambda event:play_video(None))
+        debug_window.bind("<a>",lambda event:rewindr(None))
+        debug_window.bind("<d>",lambda event:fastff(None))
+        debug_window.bind("<p>",lambda event:open_playlist_window(None)) 
+        debug_window.bind("<m>",lambda event:open_mood_window(None)) 
+        debug_window.bind("<z>",lambda event:open_debug_window(None)) 
+        if edit==True:
+            debug_window.bind("<B1-Motion>", lambda event, window=debug_window: on_drag_motion(event, window))
+            debug_window.bind("<ButtonPress-1>", lambda event, window=debug_window: on_drag_start(event, window))
+    else:
+        on_debug_window_close()
+def on_debug_window_close():
+    global debug_window,open_window3,debug_handler
+    logging.getLogger().removeHandler(debug_handler)
+    logging.getLogger().setLevel(logging.ERROR)
+    debug_window.destroy()
+    open_window3=False
 def mainstart():
     global vp,mws,window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
     main = ctk.CTk()
@@ -425,10 +488,13 @@ def mainstart():
     close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(15, 15))
     music_icon = ctk.CTkImage(Image.open(mfl+"icons/logo.png"), size=(25, 25))
     edit_icon = ctk.CTkImage(Image.open(mfl+"icons/edit.png"), size=(17, 17))
+    debug_icon= ctk.CTkImage(Image.open(mfl+"icons/debug.png"), size=(22, 22))
     mood_icon=ctk.CTkImage(Image.open(mfl+"icons/mood.png"), size=(30, 30))
     logo = ctk.CTkLabel(main, image=music_icon,width=1,text="")
     logo.place(relx=0.03,rely=0.04)
     toolbar = ctk.CTkFrame(main, bg_color=bgcc,fg_color=bgcc)
+    debug_button = ctk.CTkButton(toolbar, image=debug_icon, command=lambda:open_debug_window(None),text="",width=1)
+    debug_button.pack(side="left",padx=2)
     equalizer_button = ctk.CTkButton(toolbar, image=equalizer_icon, command=lambda:open_equalizer_window(None),text="",width=1)
     equalizer_button.pack(side="left",padx=2)
     edit_button = ctk.CTkButton(toolbar, image=edit_icon, command=edit_state,text="",width=1)
@@ -439,7 +505,7 @@ def mainstart():
     maximize_button.pack(side="left", padx=2, pady=2)
     close_button = ctk.CTkButton(toolbar, image=close_icon, command=ee,text="",width=1)
     close_button.pack(side="left", padx=2, pady=2)
-    toolbar.place(rely=0.01,relx=0.56)
+    toolbar.place(rely=0.01,relx=0.47)
     pre = ctk.CTkButton(npp, image=previous_icon, command=lambda: previous(None),text="",width=1)
     pp = ctk.CTkButton(npp, image=pause_icon, command=lambda: ppl(None),text="",width=1)
     next = ctk.CTkButton(npp, image=next_icon, command=lambda: nextxx(None),text="",width=1)
@@ -515,7 +581,7 @@ def on_drag_start(event, window):
     window.x = event.x
     window.y = event.y
 def on_drag_motion(event, window):
-    global window_x, window_y,mood_window_x,mood_window_y, equalizer_window_x, equalizer_window_y, playlist_window_x, playlist_window_y
+    global window_x, window_y,mood_window_x,mood_window_y, equalizer_window_x, equalizer_window_y, playlist_window_x, playlist_window_y,debug_window_x,debug_window_y
     delta_x = event.x - window.x
     delta_y = event.y - window.y
     window_title = window.title()
@@ -535,6 +601,10 @@ def on_drag_motion(event, window):
         mood_window_x = window.winfo_x() + delta_x
         mood_window_y = window.winfo_y() + delta_y
         window.geometry(f"+{mood_window_x}+{mood_window_y}")
+    elif window_title == "Debug":
+        debug_window_x = window.winfo_x() + delta_x
+        debug_window_y = window.winfo_y() + delta_y
+        window.geometry(f"+{debug_window_x}+{debug_window_y}")
 def pb(event):
     global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons,reset_button
     if pbs==False:
@@ -994,6 +1064,7 @@ def open_equalizer_window(event):
         equalizer_window.bind("<d>",lambda event:fastff(None))
         equalizer_window.bind("<p>",lambda event:open_playlist_window(None)) 
         equalizer_window.bind("<m>",lambda event:open_mood_window(None)) 
+        equalizer_window.bind("<z>",lambda event:open_debug_window(None)) 
         if edit==True:
             equalizer_window.bind("<B1-Motion>", lambda event, window=equalizer_window: on_drag_motion(event, window))
             equalizer_window.bind("<ButtonPress-1>", lambda event, window=equalizer_window: on_drag_start(event, window))
@@ -1027,13 +1098,15 @@ def refresh_window():
         time.sleep(0.1)
         pb(None)
 def ee():
-    global vp,main,scheduler
+    global vp,main,scheduler,open_window3
     vp.stop()
-    scheduler.shutdown(wait=False)
     if open_window1==True:
         destroy_equalizer()
     if open_window==True:
         on_playlist_window_close()
+    if open_window3==True:
+        on_debug_window_close()
+    scheduler.shutdown(wait=False)
     main.destroy()
     os._exit(0)
 def repeat(event):
