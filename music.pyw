@@ -412,11 +412,12 @@ def create_debug_window():
     debug_label.place(relx=0.05,rely=0.008)
     debug_frame = ctk.CTkTextbox(debug_window, width=430, height=190,font=("Arial",16,"bold"),text_color="limegreen",fg_color=bgcc)
     debug_frame.place(relx=0.01,rely=0.12)
+    debug_frame.insert('end',"\n\n\n\t\t       No Errors")
     close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
     close_button = ctk.CTkButton(debug_window, image=close_icon, command=on_debug_window_close,text="",width=1)
     close_button.place(relx=0.928,rely=0.01)
     debug_handler = CTkLogHandler(debug_frame)
-    debug_handler.setLevel(logging.DEBUG)
+    debug_handler.setLevel(logging.ERROR)
     debug_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     logging.getLogger().addHandler(debug_handler)
     debug_window.bind('<Down>', lambda event: vmove(vs))
@@ -444,7 +445,7 @@ def create_debug_window():
 def open_debug_window(event):
     global open_window3
     if open_window3==False:
-        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.ERROR)
         open_window3=True
         create_debug_window()
     else:
