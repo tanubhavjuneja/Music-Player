@@ -11,14 +11,6 @@ import tkfilebrowser
 import logging
 from functools import wraps
 logging.basicConfig(filename='music_player.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
-class CTkLogHandler(logging.Handler):
-    def __init__(self, debug_frame):
-        super().__init__()
-        self.debug_frame = debug_frame
-    def emit(self, record):
-        msg = self.format(record)
-        self.debug_frame.insert('end', msg + '\n')
-        self.debug_frame.see('end')
 def log_exceptions(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -195,7 +187,7 @@ def jump(index):
             n=index
             play()
 def queue(index):
-    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen
+    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,queue_icon
     if fscreen==False:
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
         queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
@@ -291,7 +283,7 @@ def sort_songs():
     pf.sort()
     pforg=pf.copy()
 def start():
-    global open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global dws,open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -325,6 +317,7 @@ def start():
     pbs=False
     mws=False
     ews=False
+    dws=False
     edit=False
     window_x = 740
     window_y = 340
@@ -385,7 +378,7 @@ def open_mood_window(event):
     else:
         on_mood_window_close()
 def set_mood(mood):
-    global n,pforg,vp
+    global n,pforg,vp,queue_icon
     reset_queue()
     for song in mood:
         queue(pforg.index(song))
@@ -393,54 +386,67 @@ def set_mood(mood):
     n=0
     if pf[n]not in mood:
         n=1
+        if open_window==True or pbs==True:
+            queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
     vp.stop()
     play()
 def on_mood_window_close():
     global mood_window,open_window2
     mood_window.destroy()
     open_window2=False
+class CTkLogHandler(logging.Handler):
+    def __init__(self, debug_frame):
+        super().__init__()
+        self.debug_frame = debug_frame
+    def emit(self, record):
+        msg = self.format(record)
+        self.debug_frame.insert('end', msg + '\n')
+        self.debug_frame.see('end')
+def create_debug_window():
+    global debug_window,debug_handler,debug_frame
+    debug_window = ctk.CTkToplevel()
+    debug_window.title("Debug")
+    debug_window.geometry(f"440x220+{debug_window_x}+{debug_window_y}")
+    debug_window.overrideredirect(True)
+    debug_label=ctk.CTkLabel(debug_window,text="Debug", font=("Arial", 16, "bold"))
+    debug_label.place(relx=0.05,rely=0.008)
+    debug_frame = ctk.CTkTextbox(debug_window, width=430, height=190,font=("Arial",16,"bold"),text_color="limegreen",fg_color=bgcc)
+    debug_frame.place(relx=0.01,rely=0.12)
+    close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
+    close_button = ctk.CTkButton(debug_window, image=close_icon, command=on_debug_window_close,text="",width=1)
+    close_button.place(relx=0.928,rely=0.01)
+    debug_handler = CTkLogHandler(debug_frame)
+    debug_handler.setLevel(logging.DEBUG)
+    debug_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logging.getLogger().addHandler(debug_handler)
+    debug_window.bind('<Down>', lambda event: vmove(vs))
+    debug_window.bind('<Up>', lambda event: vmove(vs))
+    debug_window.bind('<Left>', previous)
+    debug_window.bind('<Alt_L>', previous)
+    debug_window.bind('<b>', previous)
+    debug_window.bind('<space>', ppl)
+    debug_window.bind('<Return>', ppl)
+    debug_window.bind('<n>', nextxx)
+    debug_window.bind('<Right>', nextxx)
+    debug_window.bind('<Alt_R>', nextxx)
+    debug_window.bind("<s>",lambda event:shuffle(None))
+    debug_window.bind("<r>",lambda event:repeat(None))
+    debug_window.bind("<e>",lambda event:open_equalizer_window(None))
+    debug_window.bind("<f>",lambda event:play_video(None))
+    debug_window.bind("<a>",lambda event:rewindr(None))
+    debug_window.bind("<d>",lambda event:fastff(None))
+    debug_window.bind("<p>",lambda event:open_playlist_window(None)) 
+    debug_window.bind("<m>",lambda event:open_mood_window(None)) 
+    debug_window.bind("<z>",lambda event:open_debug_window(None)) 
+    if edit==True:
+        debug_window.bind("<B1-Motion>", lambda event, window=debug_window: on_drag_motion(event, window))
+        debug_window.bind("<ButtonPress-1>", lambda event, window=debug_window: on_drag_start(event, window))
 def open_debug_window(event):
-    global open_window3,debug_window,bgcc,debug_frame,debug_handler
+    global open_window3
     if open_window3==False:
         logging.getLogger().setLevel(logging.DEBUG)
         open_window3=True
-        debug_window = ctk.CTkToplevel()
-        debug_window.title("Debug")
-        debug_window.geometry(f"440x220+{debug_window_x}+{debug_window_y}")
-        debug_window.overrideredirect(True)
-        debug_label=ctk.CTkLabel(debug_window,text="Debug", font=("Arial", 16, "bold"))
-        debug_label.place(relx=0.05,rely=0.008)
-        debug_frame = ctk.CTkTextbox(debug_window, width=430, height=190,font=("Arial",16,"bold"),text_color="limegreen",fg_color=bgcc)
-        debug_frame.place(relx=0.01,rely=0.12)
-        close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
-        close_button = ctk.CTkButton(debug_window, image=close_icon, command=on_debug_window_close,text="",width=1)
-        close_button.place(relx=0.928,rely=0.01)
-        debug_handler = CTkLogHandler(debug_frame)
-        debug_handler.setLevel(logging.DEBUG)
-        debug_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logging.getLogger().addHandler(debug_handler)
-        debug_window.bind('<Down>', lambda event: vmove(vs))
-        debug_window.bind('<Up>', lambda event: vmove(vs))
-        debug_window.bind('<Left>', previous)
-        debug_window.bind('<Alt_L>', previous)
-        debug_window.bind('<b>', previous)
-        debug_window.bind('<space>', ppl)
-        debug_window.bind('<Return>', ppl)
-        debug_window.bind('<n>', nextxx)
-        debug_window.bind('<Right>', nextxx)
-        debug_window.bind('<Alt_R>', nextxx)
-        debug_window.bind("<s>",lambda event:shuffle(None))
-        debug_window.bind("<r>",lambda event:repeat(None))
-        debug_window.bind("<e>",lambda event:open_equalizer_window(None))
-        debug_window.bind("<f>",lambda event:play_video(None))
-        debug_window.bind("<a>",lambda event:rewindr(None))
-        debug_window.bind("<d>",lambda event:fastff(None))
-        debug_window.bind("<p>",lambda event:open_playlist_window(None)) 
-        debug_window.bind("<m>",lambda event:open_mood_window(None)) 
-        debug_window.bind("<z>",lambda event:open_debug_window(None)) 
-        if edit==True:
-            debug_window.bind("<B1-Motion>", lambda event, window=debug_window: on_drag_motion(event, window))
-            debug_window.bind("<ButtonPress-1>", lambda event, window=debug_window: on_drag_start(event, window))
+        create_debug_window()
     else:
         on_debug_window_close()
 def on_debug_window_close():
@@ -450,7 +456,7 @@ def on_debug_window_close():
     debug_window.destroy()
     open_window3=False
 def mainstart():
-    global vp,mws,window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
+    global dws,vp,mws,window_y,window_x,edit,vslider,song_name_label,cunt,equalizer,repeat_button,song_progress_label,song_progress_slider,song_length,ptop,pf,n,vs,main,pp,open_window,bgc,bgcc,count,song_name,playing,mfl,open_window1,pbs,ews
     main = ctk.CTk()
     main.title("Music Player")
     main.geometry(f"440x250+{window_x}+{window_y}")
@@ -557,6 +563,9 @@ def mainstart():
     if mws==True:
         open_mood_window(None)
         mws=False
+    if dws==True:
+        open_debug_window(None)
+        dws=False
     if playing != True:
         play()
         playing=True
@@ -616,16 +625,28 @@ def pb(event):
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(40, 40))
         song_buttons=[]
         queue_buttons=[]
-        for sn in range(len(pf)):
-            song_namex = pf[sn][:-5]
-            song_button = ctk.CTkButton(scrollable_frame, width=350, text=song_namex, font=("Arial", 28, "bold"), bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w")
-            song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
-            song_buttons.append(song_button)
-            song_button.grid(row=sn, column=0)
-            queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
-            queue_button.configure(command=lambda index=sn: queue(index))
-            queue_buttons.append(queue_button)
-            queue_button.grid(row=sn, column=1)
+        if len(pf)<len(pforg):
+            for sn in range(len(pforg)):
+                song_namex = pforg[sn][:-5]
+                song_button = ctk.CTkButton(scrollable_frame, width=350, text=song_namex, font=("Arial", 25, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+                song_buttons.append(song_button)
+                song_button.grid(row=sn, column=0)
+                queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+                queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
+                queue_button.grid(row=sn, column=1)
+        else:
+            for sn in range(len(pf)):
+                song_namex = pf[sn][:-5]
+                song_button = ctk.CTkButton(scrollable_frame, width=350, text=song_namex, font=("Arial", 28, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+                song_buttons.append(song_button)
+                song_button.grid(row=sn, column=0)
+                queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+                queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
+                queue_button.grid(row=sn, column=1)
         reset_button = ctk.CTkButton(main,text="Reset",width=410,height=40,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 25, "bold"))
         reset_button.place(rely=0.6,relx=0.01)
         update_song_color()
@@ -696,13 +717,19 @@ def sw():
     main.bind("<p>",lambda event:open_playlist_window(None))
     main.mainloop()
 def call_fullscreen(): 
-    global main,fscreen,scheduler,open_window,open_window1
+    global main,fscreen,scheduler,open_window,open_window1,open_window2,dws
     if open_window==True:
         on_playlist_window_close()
         open_window=True
     if open_window1==True:
         destroy_equalizer()
         open_window1=True
+    if open_window2==True:
+        on_mood_window_close()
+        open_window2=True
+    if open_window3==True:
+        on_debug_window_close()
+        dws=True
     scheduler.shutdown(wait=False)
     main.destroy()
     fscreen=True
