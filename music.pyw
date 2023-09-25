@@ -536,10 +536,10 @@ def on_drag_motion(event, window):
         mood_window_y = window.winfo_y() + delta_y
         window.geometry(f"+{mood_window_x}+{mood_window_y}")
 def pb(event):
-    global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons
+    global main, pf, bgcc, n,song_buttons,pbs,scrollable_frame,queue_buttons,reset_button
     if pbs==False:
         pbs=True
-        scrollable_frame = ctk.CTkScrollableFrame(main, width=410, height=620)
+        scrollable_frame = ctk.CTkScrollableFrame(main, width=410, height=580)
         scrollable_frame.place(rely=0.05)
         scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
         scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
@@ -556,10 +556,13 @@ def pb(event):
             queue_button.configure(command=lambda index=sn: queue(index))
             queue_buttons.append(queue_button)
             queue_button.grid(row=sn, column=1)
+        reset_button = ctk.CTkButton(main,text="Reset",width=410,height=40,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 25, "bold"))
+        reset_button.place(rely=0.6,relx=0.01)
         update_song_color()
     else:
         scrollable_frame._scrollbar.destroy()
         scrollable_frame.destroy()
+        reset_button.destroy()
         pbs=False
 def ew(event):
     global main,vslider,ews,equalizer_window
