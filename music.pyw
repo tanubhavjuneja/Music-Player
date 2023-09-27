@@ -331,7 +331,7 @@ def start():
     debug_window_y=600
     mainstart()
 def open_mood_window(event):
-    global mood_window,mood_window_x,mood_window_y,open_window2,romantic,happy,sad,confident
+    global mood_window,mood_window_x,mood_window_y,open_window2,romantic,happy,sad,confident,edit
     if open_window2==False:
         open_window2=True
         mood_window = ctk.CTkToplevel()
@@ -403,7 +403,7 @@ class CTkLogHandler(logging.Handler):
         self.debug_frame.insert('end', msg + '\n')
         self.debug_frame.see('end')
 def create_debug_window():
-    global debug_window,debug_handler,debug_frame
+    global debug_window,debug_handler,debug_frame,edit
     debug_window = ctk.CTkToplevel()
     debug_window.title("Debug")
     debug_window.geometry(f"440x220+{debug_window_x}+{debug_window_y}")
@@ -420,25 +420,6 @@ def create_debug_window():
     debug_handler.setLevel(logging.ERROR)
     debug_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     logging.getLogger().addHandler(debug_handler)
-    debug_window.bind('<Down>', lambda event: vmove(vs))
-    debug_window.bind('<Up>', lambda event: vmove(vs))
-    debug_window.bind('<Left>', previous)
-    debug_window.bind('<Alt_L>', previous)
-    debug_window.bind('<b>', previous)
-    debug_window.bind('<space>', ppl)
-    debug_window.bind('<Return>', ppl)
-    debug_window.bind('<n>', nextxx)
-    debug_window.bind('<Right>', nextxx)
-    debug_window.bind('<Alt_R>', nextxx)
-    debug_window.bind("<s>",lambda event:shuffle(None))
-    debug_window.bind("<r>",lambda event:repeat(None))
-    debug_window.bind("<e>",lambda event:open_equalizer_window(None))
-    debug_window.bind("<f>",lambda event:play_video(None))
-    debug_window.bind("<a>",lambda event:rewindr(None))
-    debug_window.bind("<d>",lambda event:fastff(None))
-    debug_window.bind("<p>",lambda event:open_playlist_window(None)) 
-    debug_window.bind("<m>",lambda event:open_mood_window(None)) 
-    debug_window.bind("<z>",lambda event:open_debug_window(None)) 
     if edit==True:
         debug_window.bind("<B1-Motion>", lambda event, window=debug_window: on_drag_motion(event, window))
         debug_window.bind("<ButtonPress-1>", lambda event, window=debug_window: on_drag_start(event, window))
@@ -574,7 +555,7 @@ def mainstart():
         set_song_length()
     main.mainloop()
 def edit_state():
-    global edit,main,open_window,pbs,ews,mws
+    global edit,main,open_window,pbs,ews,mws,dws
     edit=not edit
     if open_window==True:
         on_playlist_window_close()
@@ -585,6 +566,9 @@ def edit_state():
     if open_window2==True:
         on_mood_window_close()
         mws=True
+    if open_window3==True:
+        on_debug_window_close()
+        dws=True
     main.destroy()
     mainstart()
 def on_drag_start(event, window):
