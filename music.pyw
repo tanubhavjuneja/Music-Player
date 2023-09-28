@@ -264,13 +264,14 @@ def select_file_location():
     main.destroy()
     read_file_location()
 def sort_songs():
-    global mfl,pf,pforg,ptop,romantic,happy,sad,confident
+    global mfl,pf,pforg,ptop,romantic,happy,sad,confident,relaxed
     ptop = mfl+"music"
     pf = os.listdir(ptop)
     romantic=[]
     happy=[]
     sad=[]
     confident=[]
+    relaxed=[]
     for song in pf:
         cat=song[-5]
         if cat=="1":
@@ -281,6 +282,8 @@ def sort_songs():
             sad.append(song)
         elif cat=="4":
             confident.append(song)
+        elif cat=="5":
+            relaxed.append(song)
     pf.sort()
     pforg=pf.copy()
 def start():
@@ -333,7 +336,7 @@ def start():
     debug_window_y=600
     mainstart()
 def open_mood_window(event):
-    global mood_window,mood_window_x,mood_window_y,open_window2,romantic,happy,sad,confident,edit
+    global mood_window,mood_window_x,mood_window_y,open_window2,romantic,happy,sad,confident,edit,relaxed
     if open_window2==False:
         open_window2=True
         mood_window = ctk.CTkToplevel()
@@ -347,14 +350,17 @@ def open_mood_window(event):
         happy_icon = ctk.CTkImage(Image.open(mfl+"icons/happy.png"), size=(50, 50))
         sad_icon = ctk.CTkImage(Image.open(mfl+"icons/sad.png"), size=(50, 50))
         confident_icon = ctk.CTkImage(Image.open(mfl+"icons/confident.png"), size=(50, 50))
+        relaxed_icon = ctk.CTkImage(Image.open(mfl+"icons/relaxed.png"), size=(50, 50))
         romantic_button=ctk.CTkButton(mood_window,image=romantic_icon,command=lambda:set_mood(romantic),text="",width=1)
         happy_button=ctk.CTkButton(mood_window,image=happy_icon,command=lambda:set_mood(happy),text="",width=1)
         sad_button=ctk.CTkButton(mood_window,image=sad_icon,command=lambda:set_mood(sad),text="",width=1)
         confident_button=ctk.CTkButton(mood_window,image=confident_icon,command=lambda:set_mood(confident),text="",width=1)
-        romantic_button.pack(side="left",padx=25)
-        happy_button.pack(side="left",padx=20)
-        sad_button.pack(side="left",padx=20)
-        confident_button.pack(side="left",padx=20)
+        relaxed_button=ctk.CTkButton(mood_window,image=relaxed_icon,command=lambda:set_mood(confident),text="",width=1)
+        romantic_button.pack(side="left",padx=10)
+        happy_button.pack(side="left",padx=10)
+        sad_button.pack(side="left",padx=10)
+        confident_button.pack(side="left",padx=10)
+        relaxed_button.pack(side="left",padx=10)
         mood_window.bind('<Down>', lambda event: vmove(vs))
         mood_window.bind('<Up>', lambda event: vmove(vs))
         mood_window.bind('<Left>', previous)
@@ -694,6 +700,7 @@ def sw():
         destroy_equalizer()
         ews=True
     scheduler.shutdown(wait=False)
+    scheduler=None
     main.destroy()
     main = ctk.CTk()
     main.geometry("40x40+1860+980")
@@ -734,6 +741,7 @@ def call_fullscreen():
         on_debug_window_close()
         dws=True
     scheduler.shutdown(wait=False)
+    scheduler=None
     main.destroy()
     fscreen=True
     fullscreen()
@@ -746,15 +754,18 @@ def mw(event):
         happy_icon = ctk.CTkImage(Image.open(mfl+"icons/happy.png"), size=(70, 70))
         sad_icon = ctk.CTkImage(Image.open(mfl+"icons/sad.png"), size=(70, 70))
         confident_icon = ctk.CTkImage(Image.open(mfl+"icons/confident.png"), size=(70, 70))
+        relaxed_icon = ctk.CTkImage(Image.open(mfl+"icons/relaxed.png"), size=(70, 70))
         romantic_button=ctk.CTkButton(mood_frame,image=romantic_icon,command=lambda:set_mood(romantic),text="",width=1)
         happy_button=ctk.CTkButton(mood_frame,image=happy_icon,command=lambda:set_mood(happy),text="",width=1)
         sad_button=ctk.CTkButton(mood_frame,image=sad_icon,command=lambda:set_mood(sad),text="",width=1)
         confident_button=ctk.CTkButton(mood_frame,image=confident_icon,command=lambda:set_mood(confident),text="",width=1)
+        relaxed_button=ctk.CTkButton(mood_frame,image=relaxed_icon,command=lambda:set_mood(relaxed),text="",width=1)
         romantic_button.pack(side="left",padx=30)
         happy_button.pack(side="left",padx=30)
         sad_button.pack(side="left",padx=30)
         confident_button.pack(side="left",padx=30)
-        mood_frame.place(relx=0.345,rely=0.4)
+        relaxed_button.pack(side="left",padx=30)
+        mood_frame.place(relx=0.3,rely=0.4)
     else:
         mood_frame.destroy()
         mws=False
@@ -875,6 +886,7 @@ def restart():
 def restart1():
     global main,fscreen,scheduler,pbs
     scheduler.shutdown(wait=False)
+    scheduler=None
     fscreen=False
     main.destroy()
     mainstart()
