@@ -10,6 +10,7 @@ from PIL import Image
 import tkfilebrowser
 import logging
 from functools import wraps
+import cProfile
 logging.basicConfig(filename='music_player.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 def log_exceptions(func):
     @wraps(func)
@@ -283,7 +284,7 @@ def sort_songs():
     pf.sort()
     pforg=pf.copy()
 def start():
-    global dws,open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global scheduler,dws,open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -298,6 +299,7 @@ def start():
     ctk.set_appearance_mode(theme)
     ctk.set_default_color_theme(mfl+"myjson.json")
     equalizer = vlc.libvlc_audio_equalizer_new()
+    scheduler=None
     cunt=0
     vs=100
     n = 0
@@ -400,35 +402,51 @@ class CTkLogHandler(logging.Handler):
         self.debug_frame = debug_frame
     def emit(self, record):
         msg = self.format(record)
+        self.debug_frame.configure(state=ctk.NORMAL)
         self.debug_frame.insert('end', msg + '\n')
         self.debug_frame.see('end')
-def create_debug_window():
-    global debug_window,debug_handler,debug_frame,edit
-    debug_window = ctk.CTkToplevel()
-    debug_window.title("Debug")
-    debug_window.geometry(f"440x220+{debug_window_x}+{debug_window_y}")
-    debug_window.overrideredirect(True)
-    debug_label=ctk.CTkLabel(debug_window,text="Debug", font=("Arial", 16, "bold"))
-    debug_label.place(relx=0.05,rely=0.008)
-    debug_frame = ctk.CTkTextbox(debug_window, width=430, height=190,font=("Arial",16,"bold"),text_color="limegreen",fg_color=bgcc)
-    debug_frame.place(relx=0.01,rely=0.12)
-    debug_frame.insert('end',"\n\n\n\t\t       No Errors")
-    close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
-    close_button = ctk.CTkButton(debug_window, image=close_icon, command=on_debug_window_close,text="",width=1)
-    close_button.place(relx=0.928,rely=0.01)
-    debug_handler = CTkLogHandler(debug_frame)
-    debug_handler.setLevel(logging.ERROR)
-    debug_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logging.getLogger().addHandler(debug_handler)
-    if edit==True:
-        debug_window.bind("<B1-Motion>", lambda event, window=debug_window: on_drag_motion(event, window))
-        debug_window.bind("<ButtonPress-1>", lambda event, window=debug_window: on_drag_start(event, window))
+        self.debug_frame.configure(state=ctk.DISABLED)
 def open_debug_window(event):
-    global open_window3
+    global open_window3,debug_window,debug_handler,debug_frame,edit
     if open_window3==False:
-        logging.getLogger().setLevel(logging.ERROR)
         open_window3=True
-        create_debug_window()
+        debug_window = ctk.CTkToplevel()
+        debug_window.title("Debug")
+        debug_window.geometry(f"440x220+{debug_window_x}+{debug_window_y}")
+        debug_window.overrideredirect(True)
+        debug_label=ctk.CTkLabel(debug_window,text="Debug", font=("Arial", 16, "bold"))
+        debug_label.place(relx=0.05,rely=0.008)
+        debug_frame = ctk.CTkTextbox(debug_window, width=430, height=190,font=("Arial",16,"bold"),text_color="limegreen",fg_color=bgcc, state=ctk.DISABLED)
+        debug_frame.place(relx=0.01,rely=0.12)
+        close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
+        close_button = ctk.CTkButton(debug_window, image=close_icon, command=on_debug_window_close,text="",width=1)
+        close_button.place(relx=0.928,rely=0.01)
+        debug_handler = CTkLogHandler(debug_frame)
+        logging.getLogger().setLevel(logging.INFO)
+        debug_handler.setLevel(logging.INFO)
+        debug_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(debug_handler)
+        debug_window.bind('<Down>', lambda event: vmove(vs-5))
+        debug_window.bind('<Up>', lambda event: vmove(vs+5))
+        debug_window.bind('<Left>', previous)
+        debug_window.bind('<Alt_L>', previous)
+        debug_window.bind('<b>', previous)
+        debug_window.bind('<space>', ppl)
+        debug_window.bind('<Return>', ppl)
+        debug_window.bind('<n>', nextxx)
+        debug_window.bind('<Right>', nextxx)
+        debug_window.bind('<Alt_R>', nextxx)
+        debug_window.bind("<s>",lambda event:shuffle(None))
+        debug_window.bind("<r>",lambda event:repeat(None))
+        debug_window.bind("<e>",lambda event:open_equalizer_window(None))
+        debug_window.bind("<f>",lambda event:play_video(None))
+        debug_window.bind("<a>",lambda event:rewindr(None))
+        debug_window.bind("<d>",lambda event:fastff(None))
+        debug_window.bind("<p>",lambda event:open_playlist_window(None))
+        debug_window.bind("<m>",lambda event:open_mood_window(None))
+        if edit==True:
+            debug_window.bind("<B1-Motion>", lambda event, window=debug_window: on_drag_motion(event, window))
+            debug_window.bind("<ButtonPress-1>", lambda event, window=debug_window: on_drag_start(event, window))
     else:
         on_debug_window_close()
 def on_debug_window_close():
@@ -1020,10 +1038,10 @@ def set_song_length():
     song_progress_slider.configure(to=songlength)
     timestr="00:00"
     song_progress_label.configure(text=str(timestr)+"/"+str(time_str))
-    status = vp.get_state()
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(update_song_progress,'interval', seconds=1, args=['value'],max_instances=150,id="job2")
-    scheduler.start()
+    if scheduler is None:
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(update_song_progress,'interval', seconds=1, args=['value'],max_instances=150)
+        scheduler.start()
 def destroy_equalizer():
     global equalizer_window,open_window1
     equalizer_window.destroy()
