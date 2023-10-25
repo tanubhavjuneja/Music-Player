@@ -86,16 +86,107 @@ def update_song_color():
                     song_button.configure(fg_color="DarkOrchid3")
                 else:
                     song_button.configure(fg_color=bgcc)
+            elif pforg1 is not None and len(pforg)<len(pforg1):
+                if sn == pforg1.index(np):
+                    song_button.configure(fg_color="DarkOrchid3")
+                else:
+                    song_button.configure(fg_color=bgcc)
             else:
                 if sn == pf.index(np):
                     song_button.configure(fg_color="DarkOrchid3")
                 else:
                     song_button.configure(fg_color=bgcc)
         if queue_playing==True:
-            for sname in pf[n+1:]:
-                queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
+            if pforg1 is not None and len(pforg)<len(pforg1):
+                for sname in pf[n+1:]:
+                    queue_buttons[pforg1.index(sname)].configure(image=queue_icon1)
+            else:
+                for sname in pf[n+1:]:
+                    queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
+def org_list():
+    global search_bar,back_button,searched,queue_buttons,song_buttons
+    back_button.destroy()
+    search_bar.delete("0.0", "end")
+    search_bar.configure(width=320)
+    search_bar.place_configure(relx=0.03)
+    searched=False
+    for queue_button in queue_buttons:
+        queue_button.destroy()
+    for song_button in song_buttons:
+        song_button.destroy()
+    song_buttons=[]
+    queue_buttons=[]
+    queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
+    if len(pf)<len(pforg):
+        for sn in range(len(pforg)):
+            song_namex = pforg[sn][:-5]
+            song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+            song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+            song_buttons.append(song_button)
+            song_button.grid(row=sn, column=0)
+            queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+            queue_button.configure(command=lambda index=sn: queue(index))
+            queue_buttons.append(queue_button)
+            queue_button.grid(row=sn, column=1)
+    else:
+        for sn in range(len(pf)):
+            song_namex = pf[sn][:-5]
+            song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+            song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+            song_buttons.append(song_button)
+            song_button.grid(row=sn, column=0)
+            queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+            queue_button.configure(command=lambda index=sn: queue(index))
+            queue_buttons.append(queue_button)
+            queue_button.grid(row=sn, column=1)
+def search_song(event):
+    global search_bar,playlist_window,song_buttons,queue_buttons,back_button,searched,scrollable_frame,pforg,search_results
+    if searched==False:
+        searched=True
+        search_bar.configure(width=290)
+        search_bar.place_configure(relx=0.1)
+        back_icon = ctk.CTkImage(Image.open(mfl+"icons/back.png"), size=(20, 20))
+        back_button = ctk.CTkButton(playlist_window, image=back_icon, command=org_list,text="",width=1)
+        back_button.place(rely=0.07)
+    else:
+        pass
+    queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
+    for queue_button in queue_buttons:
+        queue_button.destroy()
+    for song_button in song_buttons:
+        song_button.destroy()
+    search_results=[]
+    song_buttons=[]
+    queue_buttons=[]
+    search = search_bar.get("0.0", "end").rstrip()
+    if pforg1 is not None and len(pforg)<len(pforg1):
+        for sn in range(len(pforg1)):
+            if search in pforg1[sn].lower():
+                search_results.append(pforg1[sn])
+                song_namex = pforg1[sn][:-5]
+                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+                song_buttons.append(song_button)
+                song_button.grid(row=sn, column=0)
+                queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+                queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
+                queue_button.grid(row=sn, column=1)
+    else:
+        for sn in range(len(pforg)):
+            if search in pforg[sn].lower():
+                search_results.append(pforg[sn])
+                song_namex = pforg[sn][:-5]
+                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+                song_buttons.append(song_button)
+                song_button.grid(row=sn, column=0)
+                queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+                queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
+                queue_button.grid(row=sn, column=1)
 def open_playlist_window(event):
-    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons,edit,playlist_window_x,playlist_window_y
+    global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons,edit,playlist_window_x,playlist_window_y,search_bar,scrollable_frame
     if open_window==False:
         open_window=True
         playlist_window = ctk.CTkToplevel()
@@ -107,8 +198,15 @@ def open_playlist_window(event):
         close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
         close_button = ctk.CTkButton(playlist_window, image=close_icon, command=on_playlist_window_close,text="",width=1)
         close_button.place(relx=0.9,rely=0.01)
-        scrollable_frame = ctk.CTkScrollableFrame(playlist_window, width=310, height=500)
-        scrollable_frame.pack(pady=30)
+        search_bar=ctk.CTkTextbox(playlist_window,height=25,width=320,wrap=ctk.WORD)
+        search_bar.bind("<KeyRelease>", lambda event: search_song(event))
+        search_bar.bind("<Return>", lambda e: "break")
+        search_bar.place(rely=0.065,relx=0.03)
+        search_icon = ctk.CTkImage(Image.open(mfl+"icons/search.png"), size=(20, 20))
+        search_button = ctk.CTkButton(search_bar, image=search_icon,fg_color="gray20",command=lambda:search_song(None),text="",width=1)
+        search_button.place(relx=0.88,rely=0.05)
+        scrollable_frame = ctk.CTkScrollableFrame(playlist_window, width=310, height=450)
+        scrollable_frame.place(rely=0.12)
         scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
         scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
@@ -117,6 +215,17 @@ def open_playlist_window(event):
         if len(pf)<len(pforg):
             for sn in range(len(pforg)):
                 song_namex = pforg[sn][:-5]
+                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+                song_buttons.append(song_button)
+                song_button.grid(row=sn, column=0)
+                queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+                queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
+                queue_button.grid(row=sn, column=1)
+        elif pforg1 is not None and len(pforg)<len(pforg1):
+            for sn in range(len(pforg1)):
+                song_namex = pforg1[sn][:-5]
                 song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
                 song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
                 song_buttons.append(song_button)
@@ -139,25 +248,6 @@ def open_playlist_window(event):
         reset_button = ctk.CTkButton(playlist_window,text="Reset",width=300,height=30,command=reset_queue,fg_color="DarkOrchid3",font=("Arial", 16, "bold"))
         reset_button.place(rely=0.92,relx=0.05)
         update_song_color()
-        playlist_window.bind('<Down>', lambda event: vmove(vs))
-        playlist_window.bind('<Up>', lambda event: vmove(vs))
-        playlist_window.bind('<Left>', previous)
-        playlist_window.bind('<Alt_L>', previous)
-        playlist_window.bind('<b>', previous)
-        playlist_window.bind('<space>', ppl)
-        playlist_window.bind('<Return>', ppl)
-        playlist_window.bind('<n>', nextxx)
-        playlist_window.bind('<Right>', nextxx)
-        playlist_window.bind('<Alt_R>', nextxx)
-        playlist_window.bind("<s>",lambda event:shuffle(None))
-        playlist_window.bind("<r>",lambda event:repeat(None))
-        playlist_window.bind("<e>",lambda event:open_equalizer_window(None))
-        playlist_window.bind("<f>",lambda event:play_video(None))
-        playlist_window.bind("<a>",lambda event:rewindr(None))
-        playlist_window.bind("<d>",lambda event:fastff(None))
-        playlist_window.bind("<p>",lambda event:open_playlist_window(None)) 
-        playlist_window.bind("<m>",lambda event:open_mood_window(None)) 
-        playlist_window.bind("<z>",lambda event:open_debug_window(None)) 
         if edit==True:
             playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
             playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
@@ -189,7 +279,7 @@ def jump(index):
             n=index
             play()
 def queue(index):
-    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,queue_icon
+    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,queue_icon,search_results,pforg1
     if fscreen==False:
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
         queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
@@ -202,16 +292,41 @@ def queue(index):
         pf=[pf[n]]
     if n>=len(pf):
         n=0
-    if pforg[index] not in pf:
-        pf.append(pforg[index])
-        if open_window==True or pbs==True:
-            queue_buttons[index].configure(image=queue_icon1)
-    elif pforg[index] in pf:
-        pf.remove(pforg[index])
-        if open_window==True or pbs==True:
-            queue_buttons[index].configure(image=queue_icon)
+    if pforg1 is not None:
+        if pforg1[index] not in pf:
+            pf.append(pforg1[index])
+            print(pf)
+            if open_window==True or pbs==True:
+                if searched==True:
+                    queue_buttons[search_results.index(pforg1[index])].configure(image=queue_icon1)
+                else:
+                    queue_buttons[index].configure(image=queue_icon1)
+        elif pforg1[index] in pf:
+            pf.remove(pforg1[index])
+            if open_window==True or pbs==True:
+                if searched==True:
+                    queue_buttons[search_results.index(pforg1[index])].configure(image=queue_icon)
+                else:
+                    queue_buttons[index].configure(image=queue_icon)
+        else:
+            qi-=1
     else:
-        qi-=1
+        if pforg[index] not in pf:
+            pf.append(pforg[index])
+            if open_window==True or pbs==True:
+                if searched==True:
+                    queue_buttons[search_results.index(pforg[index])].configure(image=queue_icon1)
+                else:
+                    queue_buttons[index].configure(image=queue_icon1)
+        elif pforg[index] in pf:
+            pf.remove(pforg[index])
+            if open_window==True or pbs==True:
+                if searched==True:
+                    queue_buttons[search_results.index(pforg[index])].configure(image=queue_icon)
+                else:
+                    queue_buttons[index].configure(image=queue_icon)
+        else:
+            qi-=1
     return queue_playing
 def fastf():
     global vp, clip
@@ -288,7 +403,7 @@ def sort_songs():
     pf.sort()
     pforg=pf.copy()
 def start():
-    global scheduler,dws,open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global searched,scheduler,dws,open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,pforg1,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -314,6 +429,7 @@ def start():
     open_window1=False
     open_window2=False
     open_window3=False
+    searched=False
     fscreen=False
     small_window=False
     pforg1=None
@@ -650,6 +766,17 @@ def pb(event):
                 queue_button.configure(command=lambda index=sn: queue(index))
                 queue_buttons.append(queue_button)
                 queue_button.grid(row=sn, column=1)
+        elif pforg1 is not None and len(pforg)<len(pforg1):
+            for sn in range(len(pforg1)):
+                song_namex = pforg1[sn][:-5]
+                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+                song_buttons.append(song_button)
+                song_button.grid(row=sn, column=0)
+                queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+                queue_button.configure(command=lambda index=sn: queue(index))
+                queue_buttons.append(queue_button)
+                queue_button.grid(row=sn, column=1)
         else:
             for sn in range(len(pf)):
                 song_namex = pf[sn][:-5]
@@ -943,33 +1070,53 @@ def ppl(event):
         if video_playback==True:
             play_video(None)
 def nextx(event):
-    global n,pf,vp,pforg,queue_playing,open_window
+    global n,pf,vp,pforg,queue_playing,open_window,pforg1
     n += 1
     if n >= len(pf):
-        if pforg.index(pf[n-1])>=len(pforg)-1:
-            n = 0
+        if pforg1 is not None:
+            if pforg1.index(pf[n-1])>=len(pforg1)-1:
+                n = 0
+            else:
+                n=pforg1.index(pf[n-1])+1
+            pf=pforg1.copy()
         else:
-            n=pforg.index(pf[n-1])+1
-        pf=pforg.copy()
+            if pforg.index(pf[n-1])>=len(pforg)-1:
+                n = 0
+            else:
+                n=pforg.index(pf[n-1])+1
+            pf=pforg.copy()
         queue_playing=False
     if queue_playing==True and open_window==True:
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
-        queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
+        if searched==True:
+            queue_buttons[search_results.index(pf[n])].configure(image=queue_icon)
+        else:
+            queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
     play()
 def nextxx(event):
-    global n,pf,vp,pforg,queue_playing,queue_buttons,open_window
+    global n,pf,vp,pforg,queue_playing,queue_buttons,open_window,pforg1
     vp.stop()
     n += 1
     if n >= len(pf):
-        if pforg.index(pf[n-1])>=len(pforg)-1:
-            n = 0
+        if pforg1 is not None:
+            if pforg1.index(pf[n-1])>=len(pforg1)-1:
+                n = 0
+            else:
+                n=pforg1.index(pf[n-1])+1
+            pf=pforg1.copy()
         else:
-            n=pforg.index(pf[n-1])+1
-        pf=pforg.copy()
+            if pforg.index(pf[n-1])>=len(pforg)-1:
+                n = 0
+            else:
+                n=pforg.index(pf[n-1])+1
+            pf=pforg.copy()
         queue_playing=False
     if queue_playing==True and open_window==True:
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
-        queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
+        if searched==True:
+            queue_buttons[search_results.index(pf[n])].configure(image=queue_icon)
+        else:
+            queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
     play()   
 def previous(event):
     global n,pf,vp
@@ -1029,19 +1176,18 @@ def on_slider_move(event):
     vp.set_time(current_time * 1000)
 def update_song_progress(val):
     global vp,song_length,is_dragging,current_time,song_progress_slider,small_window
-    if small_window==False and video_playback==False:
-        if not is_dragging:
-            status = vp.get_state()
-            if status == vlc.State.Playing:
-                current_time = vp.get_time() // 1000
-                if current_time<=0:
-                    current_time=0
-                minutes=current_time//60
-                seconds=current_time%60
-                timeobj = datetime.time(minute=minutes, second=seconds)
-                timestr = timeobj.strftime('%M:%S')
-                song_progress_label.configure(text=str(timestr)+"/"+str(time_str))
-                song_progress_slider.set(current_time)
+    if small_window==False and not is_dragging:
+        status = vp.get_state()
+        if status == vlc.State.Playing:
+            current_time = vp.get_time() // 1000
+            if current_time<=0:
+                current_time=0
+            minutes=current_time//60
+            seconds=current_time%60
+            timeobj = datetime.time(minute=minutes, second=seconds)
+            timestr = timeobj.strftime('%M:%S')
+            song_progress_label.configure(text=str(timestr)+"/"+str(time_str))
+            song_progress_slider.set(current_time)
 def set_song_length():
     global vp,time_str,songlength,scheduler
     time.sleep(0.2)
@@ -1075,7 +1221,7 @@ def open_equalizer_window(event):
         equalizer_label.place(relx=0.05,rely=0.008)
         close_icon = ctk.CTkImage(Image.open(mfl+"icons/close.png"), size=(13, 13))
         close_button = ctk.CTkButton(equalizer_window, image=close_icon, command=destroy_equalizer,text="",width=1)
-        close_button.place(relx=0.87,rely=0.008)
+        close_button.place(relx=0.9,rely=0.008)
         equalizer_frame=ctk.CTkFrame(equalizer_window)
         preamp_label = ctk.CTkLabel(equalizer_frame, text="Preamp", font=("Arial", 16, "bold"))
         preamp_label.pack()
