@@ -292,7 +292,7 @@ def queue(index):
         pf=[pf[n]]
     if n>=len(pf):
         n=0
-    if pforg1 is not None:
+    if pforg1 is not None and len(pforg)<len(pforg1):
         if pforg1[index] not in pf:
             pf.append(pforg1[index])
             print(pf)
