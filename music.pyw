@@ -128,6 +128,17 @@ def org_list():
             queue_button.configure(command=lambda index=sn: queue(index))
             queue_buttons.append(queue_button)
             queue_button.grid(row=sn, column=1)
+    elif pforg1 is not None and len(pforg)<len(pforg1):
+        for sn in range(len(pforg1)):
+            song_namex = pforg1[sn][:-5]
+            song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+            song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+            song_buttons.append(song_button)
+            song_button.grid(row=sn, column=0)
+            queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
+            queue_button.configure(command=lambda index=sn: queue(index))
+            queue_buttons.append(queue_button)
+            queue_button.grid(row=sn, column=1)
     else:
         for sn in range(len(pf)):
             song_namex = pf[sn][:-5]
@@ -139,6 +150,7 @@ def org_list():
             queue_button.configure(command=lambda index=sn: queue(index))
             queue_buttons.append(queue_button)
             queue_button.grid(row=sn, column=1)
+    update_song_color()
 def search_song(event):
     global search_bar,playlist_window,song_buttons,queue_buttons,back_button,searched,scrollable_frame,pforg,search_results
     if searched==False:
@@ -185,6 +197,7 @@ def search_song(event):
                 queue_button.configure(command=lambda index=sn: queue(index))
                 queue_buttons.append(queue_button)
                 queue_button.grid(row=sn, column=1)
+    update_song_color()
 def open_playlist_window(event):
     global playlist_window, pf, bgcc, n,song_buttons,open_window,pforg,mfl,queue_buttons,edit,playlist_window_x,playlist_window_y,search_bar,scrollable_frame
     if open_window==False:
