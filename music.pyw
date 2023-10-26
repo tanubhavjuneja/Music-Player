@@ -220,8 +220,6 @@ def open_playlist_window(event):
         search_button.place(relx=0.88,rely=0.05)
         scrollable_frame = ctk.CTkScrollableFrame(playlist_window, width=310, height=450)
         scrollable_frame.place(rely=0.12)
-        scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
-        scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
         song_buttons=[]
         queue_buttons=[]
@@ -763,8 +761,6 @@ def pb(event):
         pbs=True
         scrollable_frame = ctk.CTkScrollableFrame(main, width=410, height=580)
         scrollable_frame.place(rely=0.05)
-        scrollable_frame.bind_all("<Button-4>", lambda e: scrollable_frame._parent_canvas.yview("scroll", -1, "units"))
-        scrollable_frame.bind_all("<Button-5>", lambda e: scrollable_frame._parent_canvas.yview("scroll", 1, "units"))
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(40, 40))
         song_buttons=[]
         queue_buttons=[]
@@ -782,7 +778,7 @@ def pb(event):
         elif pforg1 is not None and len(pforg)<len(pforg1):
             for sn in range(len(pforg1)):
                 song_namex = pforg1[sn][:-5]
-                song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
+                song_button = ctk.CTkButton(scrollable_frame, width=350, text=song_namex, font=("Arial", 20, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
                 song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
                 song_buttons.append(song_button)
                 song_button.grid(row=sn, column=0)
