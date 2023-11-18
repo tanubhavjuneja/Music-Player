@@ -74,7 +74,7 @@ def play_video(event=None):
         cv2.destroyAllWindows()
         return video_playback
 def update_song_color():
-    global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing,small_window
+    global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing,small_window,queue_order
     if fscreen==False:
         queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
     else:
@@ -92,8 +92,12 @@ def update_song_color():
                 else:
                     song_button.configure(fg_color=bgcc)
         if queue_playing==True:
-            for sname in pf[n+1:]:
-                queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
+            if shuffled==True:
+                for sname in queue_order[n+1:]:
+                    queue_buttons[pf.index(sname)].configure(image=queue_icon1)
+            else:
+                for sname in queue_order[n+1:]:
+                    queue_buttons[pforg.index(sname)].configure(image=queue_icon1)
 def org_list():
     global search_bar,back_button,searched,queue_buttons,song_buttons
     back_button.destroy()
@@ -220,8 +224,9 @@ def open_playlist_window(event):
     else:
         on_playlist_window_close()
 def reset_queue():
-    global pf,pforg,n,np,queue_playing,pforg
+    global pf,pforg,n,np,queue_playing,pforg,shuffled
     queue_playing=False
+    shuffled=False
     n=pforg.index(np)
     pf=pforg.copy()
     refresh_window()
@@ -243,7 +248,7 @@ def jump(index):
             n=index
             play()
 def queue(index):
-    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,queue_icon,search_results
+    global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,queue_icon,search_results,queue_order
     if fscreen==False:
         queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
         queue_icon1 = ctk.CTkImage(Image.open(mfl+"icons/queue1.png"), size=(25, 25))
@@ -272,6 +277,7 @@ def queue(index):
                 queue_buttons[index].configure(image=queue_icon)
     else:
         qi-=1
+    queue_order=pf.copy()
     return queue_playing
 def fastf():
     global vp, clip
@@ -348,7 +354,7 @@ def sort_songs():
     pf.sort()
     pforg=pf.copy()
 def start():
-    global searched,scheduler,dws,open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
+    global shuffled,queue_order,searched,scheduler,dws,open_window3,debug_window_x,debug_window_y,mws,open_window2,mood_window_x,mood_window_y,equalizer_window_y,equalizer_window_x,playlist_window_x,playlist_window_y,window_x,window_y,edit,small_window,pforg,qi,repeat_song,song_name_label,cunt,fscreen,equalizer,song_progress_label,song_length,song_progress_slider,ptop,pf,n,vs,main,pp,video_playback,open_window,queue_playing,bgc,bgcc,count,song_name,playing,pbs,ews,mfl,open_window1
     video_playback=False
     count=0
     theme="dark"
@@ -376,9 +382,11 @@ def start():
     open_window3=False
     searched=False
     fscreen=False
+    shuffled=False
     small_window=False
     sort_songs()
     song_name = pf[n][:-5]
+    queue_order=[]
     playing=False
     pbs=False
     mws=False
@@ -1001,7 +1009,7 @@ def ppl(event):
         if video_playback==True:
             play_video(None)
 def nextx(event):
-    global n,pf,vp,pforg,queue_playing,open_window
+    global n,pf,vp,pforg,queue_playing,open_window,shuffled
     n += 1
     if n >= len(pf):
         if pforg.index(pf[n-1])>=len(pforg)-1:
@@ -1015,10 +1023,13 @@ def nextx(event):
         if searched==True:
             queue_buttons[search_results.index(pf[n])].configure(image=queue_icon)
         else:
-            queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
+            if shuffled==True:
+                queue_buttons[pf.index(queue_order[n])].configure(image=queue_icon)
+            else:
+                queue_buttons[pforg.index(queue_order[n])].configure(image=queue_icon)
     play()
 def nextxx(event):
-    global n,pf,vp,pforg,queue_playing,queue_buttons,open_window
+    global n,pf,vp,pforg,queue_playing,queue_buttons,open_window,shuffled
     vp.stop()
     n += 1
     if n >= len(pf):
@@ -1033,7 +1044,10 @@ def nextxx(event):
         if searched==True:
             queue_buttons[search_results.index(pf[n])].configure(image=queue_icon)
         else:
-            queue_buttons[pforg.index(pf[n])].configure(image=queue_icon)
+            if shuffled==True:
+                queue_buttons[pf.index(queue_order[n])].configure(image=queue_icon)
+            else:
+                queue_buttons[pforg.index(queue_order[n])].configure(image=queue_icon)
     play()   
 def previous(event):
     global n,pf,vp
@@ -1188,18 +1202,18 @@ def update_band(index, val):
     vlc.libvlc_audio_equalizer_set_amp_at_index(equalizer, float(val), index)
     vp.set_equalizer(equalizer)
 def shuffle(event):
-    global pf,cunt,np,pforg,n
+    global pf,cunt,np,pforg,n,queue_order,shuffled
+    shuffled=True
     if queue_playing==False:
         pf.remove(np)
         random.shuffle(pf)
         pf.insert(n,np)
-        pforg=pf
     else:
-        for no in pf:
-            pforg.remove(no)
         random.shuffle(pforg)
-        for no in range(len(pf)):
-            pforg.insert(no,pf[no])
+        for no in pforg:
+            if no not in pf:
+                pf.append(no)
+        pforg.sort()
     refresh_window()
     return pf
 def refresh_window():
