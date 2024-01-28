@@ -474,7 +474,7 @@ def mainstart():
     main.attributes("-alpha",100.0)
     main.lift()
     if len(song_name)>=17:
-        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 20, "bold"))
+        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 25, "bold"))
     else:
         song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 40, "bold"))
     song_name_label.place(relx=0.5, rely=0.16, anchor="n")
@@ -788,7 +788,7 @@ def fullscreen():
     else:
         song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 120, "bold"))
     song_name_label.pack(pady=10)
-    song_name_label.place(relx=0.5, rely=0.15, anchor="n")
+    .place(relx=0.5, rely=0.15, anchor="n")
     vslider = ctk.CTkSlider(main, from_=0, to=100, orientation='vertical', width=25, height=610, command=vmove)
     vslider.set(vs)
     vslider.place(relx=0.98, rely=0.335, anchor="e")
@@ -912,7 +912,7 @@ def update_song_name():
     if small_window==False:
         if  fscreen==False:
             if len(song_name)>=17:
-                song_name_label.configure(text=song_name,font=("Arial", 20, "bold"))
+                song_name_label.configure(text=song_name,font=("Arial", 25, "bold"))
             else:
                 song_name_label.configure(text=song_name,font=("Arial", 40, "bold"))
         else:
