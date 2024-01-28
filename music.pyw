@@ -474,7 +474,7 @@ def mainstart():
     main.attributes("-alpha",100.0)
     main.lift()
     if len(song_name)>=17:
-        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 30, "bold"))
+        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 20, "bold"))
     else:
         song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 40, "bold"))
     song_name_label.place(relx=0.5, rely=0.16, anchor="n")
@@ -784,7 +784,7 @@ def fullscreen():
     main.lift()
     main.focus_force()
     if len(song_name)>=17:
-        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 80, "bold"))
+        song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 60, "bold"))
     else:
         song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 120, "bold"))
     song_name_label.pack(pady=10)
@@ -912,12 +912,12 @@ def update_song_name():
     if small_window==False:
         if  fscreen==False:
             if len(song_name)>=17:
-                song_name_label.configure(text=song_name,font=("Arial", 30, "bold"))
+                song_name_label.configure(text=song_name,font=("Arial", 20, "bold"))
             else:
                 song_name_label.configure(text=song_name,font=("Arial", 40, "bold"))
         else:
             if len(song_name)>=17:
-                song_name_label.configure(text=song_name,font=("Arial", 80, "bold"))
+                song_name_label.configure(text=song_name,font=("Arial", 60, "bold"))
             else:
                 song_name_label.configure(text=song_name,font=("Arial", 120, "bold"))
 def ppl(event):
