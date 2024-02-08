@@ -188,7 +188,7 @@ def reset_queue():
     shuffled=False
     n=pforg.index(np)
     pf=list(range(0, len(pforg)))
-    refresh_window()
+    change_list()
 def on_playlist_window_close():
     global playlist_window,open_window
     playlist_window.destroy()
@@ -199,6 +199,19 @@ def jump(index):
         vp.stop()
         n=index
         play()
+def change_element(index):
+    global song_buttons, queue_buttons,pf,pforg
+    song_namex = pforg[pf[index]][:-5]
+    song_button=song_buttons[index]
+    song_button.unbind()
+    song_button.bind("<Button-1>", lambda e, index=index: jump(index))
+    song_button.configure(text=song_namex)
+    queue_button=queue_buttons[index]
+    queue_button.unbind()
+    queue_button.configure(command=lambda index=index: queue(index))
+def change_list():
+    for i in range(0,len(pf)):
+        change_element(i)
 def queue(index):
     global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,search_results,queue_order,shuffled
     queue_playing=True
@@ -211,7 +224,7 @@ def queue(index):
         queue_order.remove(queue_item)
         pf.remove(queue_item)
         pf.insert(index,queue_item)
-    refresh_window()
+    change_list()
     return queue_playing
 def fastf():
     global vp, clip
@@ -788,7 +801,7 @@ def fullscreen():
     else:
         song_name_label = ctk.CTkLabel(main, text=song_name, font=("Arial", 120, "bold"))
     song_name_label.pack(pady=10)
-    .place(relx=0.5, rely=0.15, anchor="n")
+    song_name_label.place(relx=0.5, rely=0.15, anchor="n")
     vslider = ctk.CTkSlider(main, from_=0, to=100, orientation='vertical', width=25, height=610, command=vmove)
     vslider.set(vs)
     vslider.place(relx=0.98, rely=0.335, anchor="e")
