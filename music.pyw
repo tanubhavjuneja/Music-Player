@@ -188,7 +188,9 @@ def reset_queue():
     shuffled=False
     n=pforg.index(np)
     pf=list(range(0, len(pforg)))
-    change_list()
+    for i in range(0,len(pf)):
+        change_element(i)
+    update_song_color()
 def on_playlist_window_close():
     global playlist_window,open_window
     playlist_window.destroy()
@@ -209,22 +211,37 @@ def change_element(index):
     queue_button=queue_buttons[index]
     queue_button.unbind()
     queue_button.configure(command=lambda index=index: queue(index))
-def change_list():
-    for i in range(0,len(pf)):
-        change_element(i)
+def change_list(index):
+    global n
+    if index>n:
+        for i in range(n+len(queue_order),index+1):
+            print(i,pf[i],pforg[pf[i]])
+            change_element(i)
+    if index<n:
+        for i in range(index,n+len(queue_order)+1):
+            print(i,pf[i],pforg[pf[i]])
+            change_element(i)
+    update_song_color()
 def queue(index):
     global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,search_results,queue_order,shuffled
     queue_playing=True
     queue_item=pf[index]
     if queue_item not in queue_order:
-        queue_order.append(queue_item)
-        pf.remove(queue_item)
-        pf.insert(n+len(queue_order),queue_item)
+        if n>index:
+            pf.remove(queue_item)
+            pf.insert(n+len(queue_order),queue_item)
+            queue_order.append(queue_item)
+            if n>index:
+                n-=1
+        else:
+            queue_order.append(queue_item)
+            pf.remove(queue_item)
+            pf.insert(n+len(queue_order),queue_item)
     else:
         queue_order.remove(queue_item)
         pf.remove(queue_item)
         pf.insert(index,queue_item)
-    change_list()
+    change_list(index)
     return queue_playing
 def fastf():
     global vp, clip
