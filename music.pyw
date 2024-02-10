@@ -211,17 +211,6 @@ def change_element(index):
     queue_button=queue_buttons[index]
     queue_button.unbind()
     queue_button.configure(command=lambda index=index: queue(index))
-def change_list(index):
-    global n
-    if index>n:
-        for i in range(n+len(queue_order),index+1):
-            print(i,pf[i],pforg[pf[i]])
-            change_element(i)
-    if index<n:
-        for i in range(index,n+len(queue_order)+1):
-            print(i,pf[i],pforg[pf[i]])
-            change_element(i)
-    update_song_color()
 def queue(index):
     global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,search_results,queue_order,shuffled
     queue_playing=True
@@ -231,17 +220,20 @@ def queue(index):
             pf.remove(queue_item)
             pf.insert(n+len(queue_order),queue_item)
             queue_order.append(queue_item)
-            if n>index:
-                n-=1
+            n-=1
+            for i in range(index,n+len(queue_order)+1):
+                change_element(i)
         else:
             queue_order.append(queue_item)
             pf.remove(queue_item)
             pf.insert(n+len(queue_order),queue_item)
+            for i in range(n+len(queue_order),index+1):
+                change_element(i)
     else:
         queue_order.remove(queue_item)
         pf.remove(queue_item)
         pf.insert(index,queue_item)
-    change_list(index)
+    update_song_color()
     return queue_playing
 def fastf():
     global vp, clip
@@ -980,8 +972,8 @@ def handle_next():
         refresh_window()
         queue_playing=False
     if queue_playing==True:
-        if n in queue_order:
-            queue_order.remove(n)
+        if pf[n] in queue_order:
+            queue_order.remove(pf[n])
 def nextx(event):
     handle_next()
     play()
