@@ -962,8 +962,9 @@ def ppl(event):
         if video_playback==True:
             play_video(None)
 def handle_next():
-    global n,pf,pforg,queue_playing,open_window,shuffled,queue_buttons,queue_order
-    n += 1
+    global n,pf,pforg,queue_playing,open_window,shuffled,queue_buttons,queue_order,repeat_song
+    if repeat_song==False:
+        n += 1
     if n >= len(pf):
         n=0
         pf=list(range(0, len(pforg)))
@@ -1173,7 +1174,7 @@ def ee():
     main.destroy()
     os._exit(0)
 def repeat(event):
-    global cunt,pf,csg,n,repeat_song,repeat_button
+    global cunt,pf,n,repeat_song,repeat_button
     cunt+=1
     if fscreen==False:
         repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(30, 30))
@@ -1182,11 +1183,9 @@ def repeat(event):
         repeat_icon = ctk.CTkImage(Image.open(mfl+"icons/repeat.png"), size=(90,90))
         repeat_icon1 = ctk.CTkImage(Image.open(mfl+"icons/repeat1.png"), size=(90,90))
     if cunt%2!=0:
-        csg=pf[n]
         repeat_song=True
         repeat_button.configure(image=repeat_icon1)
     elif cunt%2==0:
-        n=pf.index(csg)
         repeat_song=False
         repeat_button.configure(image=repeat_icon)
 start()
