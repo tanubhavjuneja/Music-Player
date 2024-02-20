@@ -130,7 +130,7 @@ def search_song(event):
             search_results.append(pforg[sn])
             song_namex = pforg[sn][:-5]
             song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 16, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
-            song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
+            song_button.bind("<Button-1>", lambda e, index=sn: jump(pf.index(index)))
             song_buttons.append(song_button)
             song_button.grid(row=sn, column=0)
             queue_button = ctk.CTkButton(scrollable_frame, image=queue_icon,text="",width=1)
