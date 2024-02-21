@@ -1149,7 +1149,8 @@ def shuffle(event):
         for no in pforg:
             if pforg.index(no) not in pf:
                 pf.append(pforg.index(no))
-    refresh_window()
+    for i in range(0,len(pf)):
+        change_element(i)
     return pf
 def refresh_window():
     global open_window
