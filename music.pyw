@@ -601,7 +601,8 @@ def mainstart():
     if playing != True:
         play()
         playing=True
-    set_song_length()
+    else:
+        set_song_length()
     main.mainloop()
 def edit_state():
     global edit,main,open_window,pbs,ews,mws,dws
