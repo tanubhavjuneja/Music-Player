@@ -601,8 +601,7 @@ def mainstart():
     if playing != True:
         play()
         playing=True
-    else:
-        set_song_length()
+    set_song_length()
     main.mainloop()
 def edit_state():
     global edit,main,open_window,pbs,ews,mws,dws
@@ -943,7 +942,7 @@ def update_song_name():
             else:
                 song_name_label.configure(text=song_name,font=("Arial", 120, "bold"))
 def ppl(event):
-    global pp,pause_icon,play_icon, video_playback,small_window,vp
+    global pp,pause_icon,play_icon, video_playback,small_window,vp,scheduler
     if  fscreen==False:
         play_icon = ctk.CTkImage(Image.open(mfl+"icons/play.png"), size=(40, 40))
         pause_icon = ctk.CTkImage(Image.open(mfl+"icons/pause.png"), size=(40, 40))
@@ -953,10 +952,12 @@ def ppl(event):
     status=vp.get_state()
     if status == vlc.State.Playing:
         vp.pause()
+        scheduler.pause()
         if small_window==False:    
             pp.configure(image=play_icon)
     elif status ==vlc.State.Paused:
         vp.play()
+        scheduler.resume()
         if small_window==False:
             pp.configure(image=pause_icon)
         if video_playback==True:
