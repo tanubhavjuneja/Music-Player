@@ -22,7 +22,7 @@ def log_exceptions(func):
             raise
     return wrapper
 def play_video(event=None):
-    global n,vp,clip,emit,pf,video_playback
+    global n,vp,clip,emit,pf,video_playback,ff
     video_playback=True
     if ff[-4:]==".mp4":
         func() 
@@ -94,8 +94,8 @@ def org_list():
     song_buttons=[]
     queue_buttons=[]
     queue_icon = ctk.CTkImage(Image.open(mfl+"icons/queue.png"), size=(25, 25))
-    for sn in range(len(pforg)):
-        song_namex = pforg[sn][:-5]
+    for sn in range(len(pf)):
+        song_namex = pforg[pf[sn]][:-5]
         song_button = ctk.CTkButton(scrollable_frame, width=270, text=song_namex, font=("Arial", 16, "bold"), height=30,bg_color=bgcc, fg_color=bgcc, border_width=0, anchor="w",hover_color="DarkOrchid3")
         song_button.bind("<Button-1>", lambda e, index=sn: jump(index))
         song_buttons.append(song_button)
@@ -211,6 +211,26 @@ def change_element(index):
     queue_button=queue_buttons[index]
     queue_button.unbind()
     queue_button.configure(command=lambda index=index: queue(index))
+def dequeue(queue_item):
+    global queue_order,pf,shuffled,n
+    queue_order.remove(queue_item)
+    pf.remove(queue_item)
+    if shuffled==True:
+        pf.insert(random.randint(n+len(queue_order)+1,len(pf)+1),queue_item)
+        for i in range(n+len(queue_order)-1,pf.index(queue_item)+1):
+            change_element(i)
+    else:
+        i=0
+        while queue_item>pf[i]:
+            i+=1
+        pf.insert(i,queue_item)
+        if n<queue_item:
+            for i in range(n+len(queue_order),pf.index(queue_item)+1):
+                change_element(i)
+        else:
+            for i in range(pf.index(queue_item),n+len(queue_order)+2):
+                change_element(i)
+            n+=1
 def queue(index):
     global n,playlist_window,pf,vp,qi,pforg,ff,song_buttons,queue_buttons,queue_playing,pbs,fscreen,search_results,queue_order,shuffled
     queue_playing=True
@@ -230,9 +250,7 @@ def queue(index):
             for i in range(n+len(queue_order),index+1):
                 change_element(i)
     else:
-        queue_order.remove(queue_item)
-        pf.remove(queue_item)
-        pf.insert(index,queue_item)
+        dequeue(queue_item)
     update_song_color()
     return queue_playing
 def fastf():
@@ -993,14 +1011,11 @@ def previous(event):
         n = len(pforg) - 1
     play()
 def play():
-    global n,pf,vp,ptop,ff,video_playback,pp,vlc_instance,np,repeat_song,csg,pforg
+    global n,pf,vp,ptop,ff,video_playback,pp,vlc_instance,np,repeat_song,pforg
     vlc_args = "--no-xlib --no-video"
     vlc_instance = vlc.Instance(vlc_args.split())
     vp = vlc_instance.media_player_new()
-    if repeat_song==True:
-        np=pforg[csg]
-    else:
-        np=pforg[pf[n]]
+    np=pforg[pf[n]]
     if open_window==True or pbs==True:
         update_song_color()
     ff = os.path.join(ptop, np)
