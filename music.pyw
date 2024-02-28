@@ -180,7 +180,7 @@ def open_playlist_window(event):
             playlist_window.bind("<B1-Motion>", lambda event, window=playlist_window: on_drag_motion(event, window))
             playlist_window.bind("<ButtonPress-1>", lambda event, window=playlist_window: on_drag_start(event, window))
     else:
-        on_playlist_window_close()
+        playlist_window.focus_force()
 def reset_queue():
     global pf,pforg,n,np,queue_playing,pforg,shuffled,queue_order
     queue_order=[]
@@ -1156,9 +1156,9 @@ def shuffle(event):
     global pf,cunt,np,pforg,n,queue_order,shuffled,queue_playing,queue_order
     shuffled=True
     if queue_playing==False:
-        pf.remove(n)
+        item=pf.pop(n)
         random.shuffle(pf)
-        pf.insert(n,n)
+        pf.insert(n,item)
     else:
         queue_order=[]
         queue_playing=False
@@ -1166,8 +1166,9 @@ def shuffle(event):
         for no in pforg:
             if pforg.index(no) not in pf:
                 pf.append(pforg.index(no))
-    for i in range(0,len(pf)):
-        change_element(i)
+    if open_window or pbs==True:
+        for i in range(0,len(pf)):
+            change_element(i)
     return pf
 def refresh_window():
     global open_window
