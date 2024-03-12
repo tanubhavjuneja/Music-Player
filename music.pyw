@@ -11,6 +11,7 @@ import tkfilebrowser
 import logging
 from functools import wraps
 import threading
+from tkinter import ttk
 logging.basicConfig(filename='music_player.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 def log_exceptions(func):
     @wraps(func)
@@ -22,56 +23,76 @@ def log_exceptions(func):
             raise
     return wrapper
 def play_video(event=None):
-    global n,vp,clip,emit,pf,video_playback,ff
-    video_playback=True
-    if ff[-4:]==".mp4":
-        func() 
-        clip_time = time.time()
-        clip = cv2.VideoCapture(ff) 
-        clip.set(cv2.CAP_PROP_POS_MSEC, emit*1000)
-        cv2.namedWindow('Video Player', cv2.WINDOW_NORMAL) 
-        cv2.setWindowProperty('Video Player', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-        while clip.isOpened(): 
-            ret, frame = clip.read()
-            if ret: 
-                cv2.imshow('Video Player', frame)
-                key = cv2.waitKey(25) & 0xFF
-                if key!=255:
-                    if key == ord('f'):
-                        video_playback=False
-                        break
-                    elif key == ord('a'):
-                        rewind()
-                    elif key == ord('d'):
-                        fastf()
-                    elif key == 32:
-                        vp.pause()
-                        break
-                    elif key == ord('b'):
-                        clip.release()
-                        cv2.destroyAllWindows()
-                        previous(None)
-                        play_video(None)
-                    elif key == ord('n'):
-                        clip.release()
-                        cv2.destroyAllWindows()
-                        nextxx(None)
-                        play_video(None)
-                    elif key ==ord('e'):
-                        open_equalizer_window(None)
-                        break   
-                    elif key ==ord('p'):
-                        open_playlist_window(None)
-                        break  
-                    elif key == ord('r'):
-                        repeat(None)
-                    elif key == ord('s'):
-                        shuffle()
+    global ff,vp
+    select()
+    def func():
+        global emit
+        emit=vp.get_time()
+        if emit==-1:
+            func()
+        return emit
+    if ff[-4:] == ".mp4":
+        root = ctk.CTk()
+        root.title("Video Player")
+        root.attributes('-fullscreen', True)
+        root.attributes('-topmost', True)
+        root.overrideredirect(True)
+        root.focus_force()
+        player = vlc.MediaPlayer()
+        media = vlc.Media(ff)
+        player.set_media(media)
+        player_frame = ttk.Frame(root)
+        player_frame.pack(fill=ctk.BOTH, expand=True)
+        player.set_hwnd(player_frame.winfo_id())
+        ppl(None)
+        emit=func()
+        player.play()
+        player.set_time(emit)
+        def toggle_pause(event):
+            if player.is_playing():
+                player.pause()
             else:
-                break
-        clip.release()
-        cv2.destroyAllWindows()
-        return video_playback
+                player.play()
+        def stop_video(event):
+            newtime = player.get_time()
+            play()
+            vp.set_time(newtime) 
+            root.destroy()
+            player.release()
+        def nextxxx(event):
+            handle_next()
+            select()
+            media = vlc.Media(ff)
+            player.set_media(media)
+            player.play()
+        def previousxxx(event):
+            global n
+            if repeat_song==False:
+                n-=1
+                select()
+            media = vlc.Media(ff)
+            player.set_media(media)
+            player.play()
+        def fastf(event):
+            currtime = player.get_time()
+            newtime = currtime + 10000
+            player.set_time(newtime)
+        def rewind(event):
+            currtime = player.get_time()
+            newtime = currtime - 10000
+            player.set_time(newtime)
+        root.bind("<s>",lambda event:shuffle(None))
+        root.bind("<r>",lambda event:repeat(None))
+        root.bind('<a>',lambda event:rewind(None))
+        root.bind('<d>',lambda event:fastf(None)) 
+        root.bind('<Left>',lambda event:previousxxx(None))
+        root.bind('<Right>',lambda event:nextxxx(None))
+        root.bind("<space>",lambda event:toggle_pause(None))
+        root.bind("<Escape>",lambda event:stop_video(None))
+        root.bind("<f>",lambda event:stop_video(None))
+        root.mainloop()
+        player.release()
+    return True
 def update_song_color():
     global n,song_buttons,ff,pforg,pf,qi,np,queue_buttons,queue_playing,small_window,queue_order
     if small_window==False:
@@ -253,28 +274,6 @@ def queue(index):
         dequeue(queue_item)
     update_song_color()
     return queue_playing
-def fastf():
-    global vp, clip
-    currtime = vp.get_time()
-    newtime = currtime + 10000
-    vp.pause()
-    vp.set_time(newtime) 
-    clip.set(cv2.CAP_PROP_POS_MSEC, newtime)
-    vp.play()
-def rewind():
-    global vp, clip
-    currtime = vp.get_time()
-    newtime = currtime - 10000
-    vp.pause()
-    vp.set_time(newtime) 
-    clip.set(cv2.CAP_PROP_POS_MSEC, newtime)
-    vp.play()
-def func():
-        global emit
-        emit=vp.get_time()//1000
-        if emit==-1:
-            func()
-        return emit
 def read_file_location():
     global mfl
     try:
@@ -887,8 +886,6 @@ def fullscreen():
     shuffle_button.pack(side="left",padx=150)
     mood_button.pack(side="left",padx=150)
     otf.place(rely=0.87)
-    main.bind('<Down>', lambda event: vmove(vs))
-    main.bind('<Up>', lambda event: vmove(vs))
     main.bind('<Left>', previous)
     main.bind('<Alt_L>', previous)
     main.bind('<b>', previous)
@@ -897,6 +894,8 @@ def fullscreen():
     main.bind('<n>', nextxx)
     main.bind('<Right>', nextxx)
     main.bind('<Alt_R>', nextxx)
+    main.bind('<Down>', lambda event: vmove(vs))
+    main.bind('<Up>', lambda event: vmove(vs))
     main.bind("<s>",lambda event:shuffle(None))
     main.bind("<r>",lambda event:repeat(None))
     main.bind("<e>",lambda event:ew(None))
@@ -1010,15 +1009,18 @@ def previous(event):
     if n < 0:
         n = len(pforg) - 1
     play()
+def select():
+    global pforg,pf,np,n,ff,ptop
+    np=pforg[pf[n]]
+    ff = os.path.join(ptop, np)
 def play():
-    global n,pf,vp,ptop,ff,video_playback,pp,vlc_instance,np,repeat_song,pforg
+    global n,pf,vp,ptop,ff,video_playback,pp,vlc_instance,np,repeat_song,pforg,scheduler
     vlc_args = "--no-xlib --no-video"
     vlc_instance = vlc.Instance(vlc_args.split())
     vp = vlc_instance.media_player_new()
-    np=pforg[pf[n]]
+    select()
     if open_window==True or pbs==True:
         update_song_color()
-    ff = os.path.join(ptop, np)
     media = vlc_instance.media_new(ff)
     media.add_option("no-video") 
     vp.set_media(media)
@@ -1087,6 +1089,7 @@ def set_song_length():
         scheduler = BackgroundScheduler()
         scheduler.add_job(update_song_progress,'interval', seconds=1, args=['value'],max_instances=150)
         scheduler.start()
+    scheduler.resume()
 def destroy_equalizer():
     global equalizer_window,open_window1
     equalizer_window.destroy()
@@ -1160,12 +1163,14 @@ def shuffle(event):
         random.shuffle(pf)
         pf.insert(n,item)
     else:
-        queue_order=[]
-        queue_playing=False
+        for item in queue_order:
+            pf.pop(item)
         random.shuffle(pf)
+        counter=1
         for no in pforg:
             if pforg.index(no) not in pf:
-                pf.append(pforg.index(no))
+                pf.insert(n+counter,pforg.index(no))
+                counter+=1
     if open_window or pbs==True:
         for i in range(0,len(pf)):
             change_element(i)
