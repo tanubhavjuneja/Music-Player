@@ -66,4 +66,5 @@ pip install python-vlc pillow schedule customtkinter
 
 ## Screenshots
 
-(Add some screenshots of your app in different modes here.)
+![Screenshot 2024-12-11 151648](https://github.com/user-attachments/assets/bdcd1bf5-7611-4cea-9f15-9ceb0a6455ad)
+
