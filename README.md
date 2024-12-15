@@ -25,9 +25,9 @@ A music player application built using Python and the `vlc` library for media pl
 
 Install Python dependencies:
 
-   ```bash
-   pip install python-vlc pillow schedule customtkinter
-   ```bash
+  ```bash
+pip install python-vlc pillow schedule customtkinter
+ ```
 ## Usage
 
 1. **Starting the Application**:
