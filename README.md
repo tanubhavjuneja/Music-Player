@@ -23,7 +23,47 @@ A music player application built using Python and the `vlc` library for media pl
 
 ## Installation
 
-1. Install Python dependencies:
+Install Python dependencies:
 
    ```bash
-   pip install vlc pillow schedule customtkinter
+   pip install python-vlc pillow schedule customtkinter
+   ```bash
+## Usage
+
+1. **Starting the Application**:
+   - Call the `start()` function to initialize the main window and begin music playback.
+
+2. **Media Control**:
+   - **Play/Pause**: Click on the play/pause button to control playback.
+   - **Fast Forward/Rewind**: Use the keyboard shortcuts or UI buttons to fast forward or rewind the song.
+   - **Next/Previous**: Skip to the next or previous song using the buttons or keyboard shortcuts.
+
+3. **Volume Control**:
+   - Use the volume slider to adjust the audio volume.
+
+4. **Equalizer**:
+   - Open the equalizer window to adjust the preamp and frequency bands for audio output.
+
+5. **Playlist Management**:
+   - The application supports playlist control with shuffle, repeat, and queue management.
+
+6. **Fullscreen and Small Window Modes**:
+   - Switch between fullscreen and small window modes for a better viewing experience.
+
+7. **Close the Application**:
+   - Use the `ee()` function to stop the application and close all open windows.
+
+## Key Bindings
+
+- **Space/Return**: Play/Pause the current song.
+- **Left/Alt+Left/b**: Rewind the current song by 10 seconds.
+- **Right/Alt+Right**: Fast forward the current song by 10 seconds.
+- **n**: Skip to the next song.
+- **p**: Open the playlist window.
+- **e**: Open the equalizer window.
+- **r**: Toggle repeat mode.
+- **s**: Shuffle the playlist.
+
+## Screenshots
+
+(Add some screenshots of your app in different modes here.)
